@@ -3,7 +3,9 @@
 
 #include <QWidget>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QDir>
+#include <QPushButton>
 
 #include "annotation_widget.hpp"
 #include "image_widget.hpp"
@@ -21,10 +23,11 @@ public:
     ~Container();
 
 private:
-
     ImageWidget* m_image_widget = nullptr;
     AnnotationWidget* m_annotation_widget = nullptr;
+    QPushButton* m_add_anntation_button = nullptr;
     
+    QVBoxLayout* m_annotation_layout = nullptr;
     QHBoxLayout* m_layout = nullptr;
 };
 

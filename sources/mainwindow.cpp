@@ -29,7 +29,7 @@ namespace fs = std::filesystem;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    resize(QGuiApplication::primaryScreen()->availableSize());
+    resize(1024, 800);
     createActions();
 
     createFileMenu();
@@ -208,11 +208,11 @@ void MainWindow::fitToWindow()
 void MainWindow::createActions()
 {
     // create actions for File Menu
-    openFolderAction = new QAction(QIcon("../media/icons/open-image.png"), "Open Folder", this);
+    openFolderAction = new QAction(QIcon(":/media/icons/open-image.png"), "Open Folder", this);
     openFolderAction->setShortcut(QKeySequence::Open);
-    saveJsonAction = new QAction(QIcon("../media/icons/save-file.png"), "Save Json File", this);
+    saveJsonAction = new QAction(QIcon(":/media/icons/save-file.png"), "Save Json File", this);
     saveJsonAction->setShortcut(QKeySequence::Save);
-    quitAction = new QAction(QIcon("../media/icons/quit.png"), "Quit", this);
+    quitAction = new QAction(QIcon(":/media/icons/quit.png"), "Quit", this);
     quitAction->setShortcut(QKeySequence::Quit);
 
     // create actions for Edit Menu
@@ -228,21 +228,20 @@ void MainWindow::createActions()
     // redoAction->setShortcut(QKeySequence::Redo);
 
 
-    nextImageAction = new QAction(QIcon("../media/icons/next-image.png"), "Next Image", this);
-    previousImageAction = new QAction(QIcon("../media/icons/previous-image.png"), "Previous Image", this);
+    nextImageAction = new QAction(QIcon(":/media/icons/next-image.png"), "Next Image", this);
+    previousImageAction = new QAction(QIcon(":/media/icons/previous-image.png"), "Previous Image", this);
 
-    zoomInAction = new QAction(QIcon("../media/icons/zoom-in.png"), "Zoom In", this);
+    zoomInAction = new QAction(QIcon(":/media/icons/zoom-in.png"), "Zoom In", this);
     zoomInAction->setShortcut(QKeySequence::ZoomIn);
-    zoomOutAction = new QAction(QIcon("../media/icons/zoom-out.png"), "Zoom Out", this);
+    zoomOutAction = new QAction(QIcon(":/media/icons/zoom-out.png"), "Zoom Out", this);
     zoomOutAction->setShortcut(QKeySequence::ZoomOut);
-    fitToWindowAction = new QAction(QIcon("../media/icons/fit-to-screen.png"), "Fit To Window", this);
+    fitToWindowAction = new QAction(QIcon(":/media/icons/fit-to-screen.png"), "Fit To Window", this);
 
     saveJsonAction->setEnabled(false);
     enableImageFeatures(false);
 
     // create actions for Help Menu
     aboutAction = new QAction(QIcon(), "About", this);
-
 }
 
 void MainWindow::createFileMenu()

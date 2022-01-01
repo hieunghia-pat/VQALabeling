@@ -23,18 +23,15 @@ public:
     ~AnnotationWidget();
 
 public slots:
-//    void addAnnotation();
-
+   void addAnnotation();
 
 private:
     QVBoxLayout* m_layout = nullptr;
 
-    qint16 const m_defaultNumOfAnns = 5;
+    qint16 const m_defaultNumOfAnns = 3;
     QList<AnnotationBox*> m_annotation_boxes;
 
     QGroupBox* m_container = nullptr;
-
-//    QPushButton* m_addButton = nullptr;
 };
 
 #endif // ANNOTATION_WIDGET_HPP

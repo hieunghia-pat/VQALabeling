@@ -5,7 +5,6 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QScrollArea>
-#include <QPushButton>
 #include <QJsonArray>
 #include <QJsonValue>
 
@@ -19,9 +18,6 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     {
         m_annotation_boxes.append(new AnnotationBox(m_container));
     }
-
-//    m_addButton = new QPushButton(m_container);
-//    m_addButton->setText("Add Annotation");
 
     m_layout = new QVBoxLayout(m_container);
     for (auto& ann: m_annotation_boxes)
@@ -68,11 +64,8 @@ AnnotationWidget::~AnnotationWidget()
 
 }
 
-//void AnnotationWidget::addAnnotation()
-//{
-//    QuestionAnswerBox* new_box = new QuestionAnswerBox(m_container);
-//    m_layout->removeWidget(m_addButton);
-//    m_layout->addWidget(new_box);
-//    m_layout->addWidget(m_addButton);
-//    m_listOfAnns.append(new_box);
-//}
+void AnnotationWidget::addAnnotation()
+{
+   AnnotationBox* new_box = new AnnotationBox(m_container);
+   m_annotation_boxes.append(new_box);
+}

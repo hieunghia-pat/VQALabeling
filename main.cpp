@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon("media/icons/logo-uit.ico"));
+    app.setWindowIcon(QIcon(":/media/icons/logo-uit.ico"));
 
     MainWindow window;
     window.show();

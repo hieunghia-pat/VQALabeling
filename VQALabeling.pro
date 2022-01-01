@@ -34,3 +34,4 @@ SOURCES += main.cpp \
            sources/mainwindow.cpp \
            sources/open_folder_dialog.cpp \
            sources/save_json_dialog.cpp
+RESOURCES += resources.qrc
