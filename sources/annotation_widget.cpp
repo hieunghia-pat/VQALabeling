@@ -20,18 +20,17 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     }
 
     m_layout = new QVBoxLayout(m_container);
+    m_layout->setAlignment(Qt::AlignTop);
     for (auto& ann: m_annotation_boxes)
     {
+        ann->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
         m_layout->addWidget(ann);
     }
-    // m_layout->addWidget(m_addButton);
 
     setWidget(m_container);
-    setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     setWidgetResizable(true);
     setAlignment(Qt::AlignCenter);
-
-    // QObject::connect(m_addButton, &QPushButton::clicked, this, &AnnotationWidget::addAnnotation);
 }
 
 std::shared_ptr<QJsonArray> AnnotationWidget::data() const
@@ -66,6 +65,8 @@ AnnotationWidget::~AnnotationWidget()
 
 void AnnotationWidget::addAnnotation()
 {
-   AnnotationBox* new_box = new AnnotationBox(m_container);
-   m_annotation_boxes.append(new_box);
+    AnnotationBox* new_box = new AnnotationBox();
+    new_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    m_annotation_boxes.append(new_box);
+    m_layout->addWidget(new_box);
 }

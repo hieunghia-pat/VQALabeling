@@ -9,9 +9,9 @@
 Container::Container(QWidget *parent)
     : QWidget(parent)
 {
-    m_image_widget = new ImageWidget(parent);
-    m_annotation_widget = new AnnotationWidget(parent);
-    m_add_anntation_button = new QPushButton(this);
+    m_image_widget = new ImageWidget();
+    m_annotation_widget = new AnnotationWidget();
+    m_add_anntation_button = new QPushButton();
     m_add_anntation_button->setText("Add Annotation");
 
     m_annotation_layout = new QVBoxLayout();
@@ -21,8 +21,6 @@ Container::Container(QWidget *parent)
     m_layout = new QHBoxLayout(this);
     m_layout->addWidget(m_image_widget);
     m_layout->addLayout(m_annotation_layout);
-
-    setLayout(m_layout);
 
     QObject::connect(m_add_anntation_button, &QPushButton::clicked, m_annotation_widget, &AnnotationWidget::addAnnotation);
 }
