@@ -8,6 +8,7 @@ INCLUDEPATH += includes
 QT += widgets
 RC_ICONS = media/icons/logo-uit.ico
 ICON = media/icons/logo-uit.ico
+CONFIG += c++17
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.

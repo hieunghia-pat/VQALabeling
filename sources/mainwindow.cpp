@@ -1,4 +1,5 @@
 ﻿#include "mainwindow.hpp"
+#include "annotation_widget.hpp"
 #include "open_folder_dialog.hpp"
 #include "save_json_dialog.hpp"
 #include "container.hpp"

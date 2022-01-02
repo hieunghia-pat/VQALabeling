@@ -16,7 +16,7 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     m_container = new QGroupBox(this);
     for (qint16 ith = 0; ith < m_defaultNumOfAnns; ith++)
     {
-        m_annotation_boxes.append(new AnnotationBox(m_container));
+        m_annotation_boxes.append(new AnnotationBox(ith, this, this));
     }
 
     m_layout = new QVBoxLayout(m_container);
@@ -50,8 +50,12 @@ QVBoxLayout *AnnotationWidget::layout()
     return m_layout;
 }
 
-void AnnotationWidget::setData(QJsonArray const& data) const
+void AnnotationWidget::setData(QJsonArray const& data)
 {
+    if (data.size() < m_annotation_boxes.size())
+        for (qsizetype ith = data.size(); ith < m_annotation_boxes.size(); ith++)
+            deleteAnnotation(ith);
+
     for (qsizetype ith = 0; ith < data.size(); ith++)
     {
         m_annotation_boxes[ith]->setAnnotation(data[ith].toObject());
@@ -63,10 +67,24 @@ AnnotationWidget::~AnnotationWidget()
 
 }
 
-void AnnotationWidget::addAnnotation()
+void AnnotationWidget::addAnnotation(qsizetype ith)
 {
-    AnnotationBox* new_box = new AnnotationBox();
-    new_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    m_annotation_boxes.append(new_box);
-    m_layout->addWidget(new_box);
+    ith += 1;
+    AnnotationBox* new_box = new AnnotationBox(ith, this, this);
+    m_annotation_boxes.insert(ith, new_box);
+    m_annotation_boxes[ith]->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    m_layout->insertWidget(ith, new_box);
+}
+
+void AnnotationWidget::deleteAnnotation(qsizetype ith)
+{
+    if (m_annotation_boxes.size() == total_initial_annotations)
+        return;
+
+    AnnotationBox* box = m_annotation_boxes[ith];
+    m_layout->removeWidget(box);
+    box->setParent(nullptr);
+    m_layout->update();
+
+    m_annotation_boxes.remove(ith);
 }

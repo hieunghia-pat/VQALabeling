@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QDir>
 #include <QPushButton>
 
@@ -25,9 +24,7 @@ public:
 private:
     ImageWidget* m_image_widget = nullptr;
     AnnotationWidget* m_annotation_widget = nullptr;
-    QPushButton* m_add_anntation_button = nullptr;
     
-    QVBoxLayout* m_annotation_layout = nullptr;
     QHBoxLayout* m_layout = nullptr;
 };
 

@@ -14,8 +14,6 @@
 #include "save_json_dialog.hpp"
 #include "container.hpp"
 
-const int total_initial_annotations = 5;
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

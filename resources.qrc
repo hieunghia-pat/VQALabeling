@@ -16,6 +16,8 @@
         <file>media/icons/undo.png</file>
         <file>media/icons/zoom-in.png</file>
         <file>media/icons/zoom-out.png</file>
+        <file>media/icons/add.png</file>
+        <file>media/icons/delete.png</file>
         <file>media/images/no-image.jpg</file>
     </qresource>
 </RCC>
