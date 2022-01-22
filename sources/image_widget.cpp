@@ -65,6 +65,11 @@ void ImageWidget::scaleImage(qfloat16 scaled)
     m_image_label->resize(m_image_label->pixmap().size()*m_scaled_factor);
 }
 
+void ImageWidget::resetScaling()
+{
+    m_scaled_factor = 1.;
+}
+
 void ImageWidget::zoomIn()
 {
     scaleImage(1.25);

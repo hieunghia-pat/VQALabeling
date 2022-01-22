@@ -29,6 +29,7 @@ public slots:
     void fitToContainer();
     void zoomIn();
     void zoomOut();
+    void resetScaling();
 
 private:
     QDir m_default_image_dir {QString("../media/images/no-image.jpg")};

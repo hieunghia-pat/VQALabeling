@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QJsonObject>
 #include <QPushButton>
+#include <QComboBox>
 
 class AnnotationBox: public QGroupBox
 {
@@ -26,12 +27,15 @@ private:
 
     QPushButton* m_add_button = nullptr;
     QPushButton* m_del_button = nullptr;
+    QComboBox* m_selection_box = nullptr;
 
     QGroupBox* m_questionGroup = nullptr;
     QGroupBox* m_answerGroup = nullptr;
+    QGroupBox* m_selectionGroup = nullptr;
 
     QVBoxLayout* m_questionLayout = nullptr;
     QVBoxLayout* m_answerLayout = nullptr;
+    QVBoxLayout* m_selectionLayout = nullptr;
     QHBoxLayout* m_button_layout = nullptr;
     QVBoxLayout* m_qa_layout = nullptr;
     QVBoxLayout* m_layout = nullptr;
