@@ -101,6 +101,7 @@ void MainWindow::loadJson(QString const& folder)
             QJsonObject object;
             object["filename"] = image_file.fileName();
             object["filepath"] = image_file.dir().path();
+            object["delete"] = false;
             QJsonArray annotations;
             // create annotations
             for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
@@ -194,11 +195,23 @@ void MainWindow::zoomOut()
     zoomInAction->setEnabled(m_container->imageWidget()->scaleFactor() <= 3.);
 }
 
+void MainWindow::resetScaling()
+{
+    m_container->imageWidget()->resetScaling();
+}
+
 void MainWindow::saveAnnotatationsForImage(qsizetype image_idx)
 {
     QJsonObject datapoint = m_data->at(image_idx).toObject();
     datapoint["annotations"] = *(m_container->annotationWidget()->data());
     (*m_data)[image_idx] = datapoint;
+}
+
+void MainWindow::updateImageDeletingStatus(bool checked)
+{
+    QJsonObject datapoint = m_data->at(current_image_idx).toObject();
+    datapoint["delete"] = checked;
+    (*m_data)[current_image_idx] = datapoint;
 }
 
 void MainWindow::fitToWindow()
@@ -232,6 +245,8 @@ void MainWindow::createActions()
     nextImageAction = new QAction(QIcon(":/media/icons/next-image.png"), "Next Image", this);
     previousImageAction = new QAction(QIcon(":/media/icons/previous-image.png"), "Previous Image", this);
 
+    deleteImageAction = new QAction(QIcon(":/media/icons/delete-image.png"), "Mark as delete", this);
+    deleteImageAction->setCheckable(true);
     zoomInAction = new QAction(QIcon(":/media/icons/zoom-in.png"), "Zoom In", this);
     zoomInAction->setShortcut(QKeySequence::ZoomIn);
     zoomOutAction = new QAction(QIcon(":/media/icons/zoom-out.png"), "Zoom Out", this);
@@ -291,6 +306,7 @@ void MainWindow::createToolbar()
     // toolbar->addAction(pasteAction);
     // toolbar->addAction(undoAction);
     // toolbar->addAction(redoAction);
+    toolbar->addAction(deleteImageAction);
     toolbar->addAction(zoomInAction);
     toolbar->addAction(zoomOutAction);
     toolbar->addAction(fitToWindowAction);
@@ -311,7 +327,11 @@ void MainWindow::createConnections()
     QObject::connect(fitToWindowAction, &QAction::triggered, this, &MainWindow::fitToWindow);
 
     QObject::connect(nextImageAction, &QAction::triggered, this, &MainWindow::nextImage);
+    QObject::connect(nextImageAction, &QAction::triggered, this, &MainWindow::resetScaling);
     QObject::connect(previousImageAction, &QAction::triggered, this, &MainWindow::previousImage);
+    QObject::connect(previousImageAction, &QAction::triggered, this, &MainWindow::resetScaling);
+    
+    QObject::connect(deleteImageAction, &QAction::triggered, this, &MainWindow::updateImageDeletingStatus);
 
     QObject::connect(quitAction, &QAction::triggered, this, &QApplication::quit);
 }

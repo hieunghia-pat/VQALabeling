@@ -36,8 +36,10 @@ public slots:
     void fitToWindow();
     void zoomIn();
     void zoomOut();
+    void resetScaling();
 
     // for saving annotations
+    void updateImageDeletingStatus(bool checked);
     void saveAnnotatationsForImage(qsizetype image_idx);
 
 private:
@@ -53,6 +55,7 @@ private:
     // QAction* pasteAction;
     // QAction* undoAction;
     // QAction* redoAction;
+    QAction* deleteImageAction = nullptr;
     QAction* zoomInAction = nullptr;
     QAction* zoomOutAction = nullptr;
     QAction* fitToWindowAction = nullptr;
