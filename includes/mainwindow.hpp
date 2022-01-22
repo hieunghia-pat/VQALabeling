@@ -25,6 +25,9 @@ public:
 
     ~MainWindow();
 
+signals:
+    void createdNovelFile(bool);
+
 public slots:
     // folder interaction slots
     void openFolder();

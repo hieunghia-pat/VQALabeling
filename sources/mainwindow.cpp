@@ -90,6 +90,7 @@ void MainWindow::loadJson(QString const& folder)
     
     if (json_files.size() == 0) // no annotation file
     {
+        emit createdNovelFile(true);
         QList<QString> image_filters;
         image_filters << "*.jpeg" << "*.png" << "*.jpg";
 
@@ -117,6 +118,8 @@ void MainWindow::loadJson(QString const& folder)
     }
     else // load json data
     {
+        emit createdNovelFile(false);
+        save_json_dialog->toggleFileSelected(false);
         QFile file(json_files.constLast().absoluteFilePath());
         if (!file.open(QIODevice::ReadOnly))
         {
@@ -305,6 +308,7 @@ void MainWindow::createConnections()
     // create connections for actions
     QObject::connect(openFolderAction, &QAction::triggered, this, &MainWindow::openFolder);
     QObject::connect(saveJsonAction, &QAction::triggered, this, &MainWindow::saveJsonFile);
+    QObject::connect(this, &MainWindow::createdNovelFile, save_json_dialog, &SaveJsonDialog::toggleFileSelected);
 
     QObject::connect(zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
     QObject::connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
