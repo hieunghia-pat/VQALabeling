@@ -25,6 +25,9 @@ public:
 
     ~AnnotationWidget();
 
+signals:
+    void haveAdjusted();
+
 public slots:
     void addAnnotation(qsizetype ith);
     void deleteAnnotation(qsizetype ith);

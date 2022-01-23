@@ -24,6 +24,13 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     for (auto& ann: m_annotation_boxes)
     {
         ann->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+        
+        QObject::connect(ann->m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationWidget::haveAdjusted);
+        QObject::connect(ann->m_answerLineEdit, &QLineEdit::textChanged, this, &AnnotationWidget::haveAdjusted);
+        QObject::connect(ann->m_add_button, &QPushButton::clicked, this, &AnnotationWidget::haveAdjusted);
+        QObject::connect(ann->m_del_button, &QPushButton::clicked, this, &AnnotationWidget::haveAdjusted);
+        QObject::connect(ann->m_selection_box, &QComboBox::currentIndexChanged, this, &AnnotationWidget::haveAdjusted);
+        
         m_layout->addWidget(ann);
     }
 

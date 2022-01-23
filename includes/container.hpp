@@ -13,15 +13,11 @@ class Container : public QWidget
 {
     Q_OBJECT
 public:
+    // methods
     Container(QWidget *parent = nullptr);
-
-    ImageWidget* imageWidget() const;
-    AnnotationWidget* annotationWidget() const;
-    QHBoxLayout* layout() const;
-
     ~Container();
 
-private:
+    // attributes
     ImageWidget* m_image_widget = nullptr;
     AnnotationWidget* m_annotation_widget = nullptr;
     

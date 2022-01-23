@@ -14,6 +14,7 @@ class AnnotationBox: public QGroupBox
 {
     Q_OBJECT
 public:
+    // method
     AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent = nullptr);
 
     std::shared_ptr<QJsonObject> annotation() const;
@@ -21,7 +22,7 @@ public:
 
     ~AnnotationBox();
 
-private:
+    // attributes
     QLineEdit* m_questionLineEdit = nullptr;
     QLineEdit* m_answerLineEdit = nullptr;
 

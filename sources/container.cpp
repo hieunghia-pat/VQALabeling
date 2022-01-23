@@ -16,21 +16,6 @@ Container::Container(QWidget *parent)
     m_layout->addWidget(m_annotation_widget);
 }
 
-ImageWidget* Container::imageWidget() const
-{
-    return m_image_widget;
-}
-
-AnnotationWidget* Container::annotationWidget() const
-{
-    return m_annotation_widget;
-}
-
-QHBoxLayout* Container::layout() const
-{
-    return m_layout;
-}
-
 Container::~Container()
 {
 

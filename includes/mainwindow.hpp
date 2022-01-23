@@ -27,6 +27,7 @@ public:
 
 signals:
     void createdNovelFile(bool);
+    void saveStatusEnabledChanged(bool);
 
 public slots:
     // folder interaction slots
@@ -44,6 +45,8 @@ public slots:
     // for saving annotations
     void updateImageDeletingStatus(bool checked);
     void saveAnnotatationsForImage(qsizetype image_idx);
+    void setSaveStatus(bool);
+    void setActiveSaveStatus();
 
 private:
     // File Menu actions

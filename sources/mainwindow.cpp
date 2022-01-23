@@ -39,13 +39,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     createToolbar();
 
-    createConnections();
-
     open_folder_dialog = new OpenFolderDialog(this);
     save_json_dialog = new SaveJsonDialog(this);
 
     m_container = new Container(this);
     setCentralWidget(m_container);
+
+    createConnections();
 }
 
 Container *MainWindow::container()
@@ -68,7 +68,7 @@ void MainWindow::openFolder()
         enableImageFeatures(true);
     }
 
-    saveJsonAction->setEnabled(true);
+    emit saveStatusEnabledChanged(false); // nothing to save when open a workspace
 }
 
 void MainWindow::saveJsonFile()
@@ -77,7 +77,10 @@ void MainWindow::saveJsonFile()
     if (dialog_returned == QDialog::Accepted)
     {
         saveAnnotatationsForImage(current_image_idx);
-        saveJson(save_json_dialog->selectedFiles().constLast());
+        if (save_json_dialog->selectedFiles().size() > 0)
+            save_json_dialog->setSelectedFile(save_json_dialog->selectedFiles().constLast());
+        saveJson(save_json_dialog->selectedFile());
+        emit saveStatusEnabledChanged(false); // have saved changed things
     }
 }
 
@@ -127,6 +130,8 @@ void MainWindow::loadJson(QString const& folder)
             qWarning() << QString("Error while opening %1").arg(json_files.constLast().path());
         }
 
+        save_json_dialog->setSelectedFile(json_files.constLast().absoluteFilePath());
+
         QTextStream filestream(&file);
         QByteArray content = filestream.readAll().toLocal8Bit();
         m_data = std::make_shared<QJsonArray>(QJsonDocument::fromJson(content).array());
@@ -136,7 +141,7 @@ void MainWindow::loadJson(QString const& folder)
 
 void MainWindow::saveJson(QString const& filename)
 {
-    QByteArray json_data = QJsonDocument(*m_data).toJson(QJsonDocument::Compact);
+    QByteArray json_data = QJsonDocument(*m_data).toJson(QJsonDocument::Indented);
     QFile json_file(filename);
 
     json_file.open(QIODevice::WriteOnly);
@@ -150,8 +155,8 @@ void MainWindow::loadData(qsizetype image_idx)
     fs::path filename { data["filename"].toString().toStdString() };
     fs::path filepath { data["filepath"].toString().toStdString() };
     QDir path = QDir(filepath / filename);
-    m_container->imageWidget()->setImage(path);
-    m_container->annotationWidget()->setData(data["annotations"].toArray());
+    m_container->m_image_widget->setImage(path);
+    m_container->m_annotation_widget->setData(data["annotations"].toArray());
 }
 
 void MainWindow::nextImage()
@@ -184,30 +189,35 @@ void MainWindow::previousImage()
 
 void MainWindow::zoomIn()
 {
-    m_container->imageWidget()->zoomIn();
+    m_container->m_image_widget->zoomIn();
 
-    zoomOutAction->setEnabled(m_container->imageWidget()->scaleFactor() >= 0.5);
-    zoomInAction->setEnabled(m_container->imageWidget()->scaleFactor() <= 3.);
+    zoomOutAction->setEnabled(m_container->m_image_widget->scaleFactor() >= 0.5);
+    zoomInAction->setEnabled(m_container->m_image_widget->scaleFactor() <= 3.);
 }
 
 void MainWindow::zoomOut()
 {
-    m_container->imageWidget()->zoomOut();
+    m_container->m_image_widget->zoomOut();
 
-    zoomOutAction->setEnabled(m_container->imageWidget()->scaleFactor() >= 0.5);
-    zoomInAction->setEnabled(m_container->imageWidget()->scaleFactor() <= 3.);
+    zoomOutAction->setEnabled(m_container->m_image_widget->scaleFactor() >= 0.5);
+    zoomInAction->setEnabled(m_container->m_image_widget->scaleFactor() <= 3.);
 }
 
 void MainWindow::resetScaling()
 {
-    m_container->imageWidget()->resetScaling();
+    m_container->m_image_widget->resetScaling();
 }
 
 void MainWindow::saveAnnotatationsForImage(qsizetype image_idx)
 {
     QJsonObject datapoint = m_data->at(image_idx).toObject();
-    datapoint["annotations"] = *(m_container->annotationWidget()->data());
+    datapoint["annotations"] = *(m_container->m_annotation_widget->data());
     (*m_data)[image_idx] = datapoint;
+}
+
+void MainWindow::setSaveStatus(bool enabled)
+{
+    saveJsonAction->setEnabled(enabled);
 }
 
 void MainWindow::updateImageDeletingStatus(bool checked)
@@ -219,7 +229,7 @@ void MainWindow::updateImageDeletingStatus(bool checked)
 
 void MainWindow::fitToWindow()
 {
-    m_container->imageWidget()->fitToContainer();
+    m_container->m_image_widget->fitToContainer();
 }
 
 void MainWindow::createActions()
@@ -229,6 +239,7 @@ void MainWindow::createActions()
     openFolderAction->setShortcut(QKeySequence::Open);
     saveJsonAction = new QAction(QIcon(":/media/icons/save-file.png"), "Save Json File", this);
     saveJsonAction->setShortcut(QKeySequence::Save);
+    saveJsonAction->setEnabled(false); // nothing to save when newly open the tool
     quitAction = new QAction(QIcon(":/media/icons/quit.png"), "Quit", this);
     quitAction->setShortcut(QKeySequence::Quit);
 
@@ -244,7 +255,6 @@ void MainWindow::createActions()
     // redoAction = new QAction(QIcon(":/icons/redo.png"), "Redo", this);
     // redoAction->setShortcut(QKeySequence::Redo);
 
-
     nextImageAction = new QAction(QIcon(":/media/icons/next-image.png"), "Next Image", this);
     previousImageAction = new QAction(QIcon(":/media/icons/previous-image.png"), "Previous Image", this);
 
@@ -256,7 +266,6 @@ void MainWindow::createActions()
     zoomOutAction->setShortcut(QKeySequence::ZoomOut);
     fitToWindowAction = new QAction(QIcon(":/media/icons/fit-to-screen.png"), "Fit To Window", this);
 
-    saveJsonAction->setEnabled(false);
     enableImageFeatures(false);
 
     // create actions for Help Menu
@@ -325,6 +334,8 @@ void MainWindow::createConnections()
     QObject::connect(openFolderAction, &QAction::triggered, this, &MainWindow::openFolder);
     QObject::connect(saveJsonAction, &QAction::triggered, this, &MainWindow::saveJsonFile);
     QObject::connect(this, &MainWindow::createdNovelFile, save_json_dialog, &SaveJsonDialog::toggleFileSelected);
+    QObject::connect(this, &MainWindow::saveStatusEnabledChanged, this, &MainWindow::setSaveStatus);
+    QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::haveAdjusted, this, &MainWindow::setActiveSaveStatus);
 
     QObject::connect(zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
     QObject::connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
@@ -347,4 +358,10 @@ void MainWindow::enableImageFeatures(bool enabled)
     zoomInAction->setEnabled(enabled);
     zoomOutAction->setEnabled(enabled);
     fitToWindowAction->setEnabled(enabled);
+}
+
+void MainWindow::setActiveSaveStatus()
+{
+    qDebug() << "in setActiveSaveStatus";
+    emit saveStatusEnabledChanged(true);
 }
