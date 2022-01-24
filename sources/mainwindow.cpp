@@ -137,6 +137,8 @@ void MainWindow::loadJson(QString const& folder)
         m_data = std::make_shared<QJsonArray>(QJsonDocument::fromJson(content).array());
         file.close();
     }
+
+    deleteImageCheckBox->setEnabled(true);
 }
 
 void MainWindow::saveJson(QString const& filename)
@@ -157,6 +159,7 @@ void MainWindow::loadData(qsizetype image_idx)
     QDir path = QDir(filepath / filename);
     m_container->m_image_widget->setImage(path);
     m_container->m_annotation_widget->setData(data["annotations"].toArray());
+    deleteImageCheckBox->setChecked(data["delete"].toBool());
 }
 
 void MainWindow::nextImage()
@@ -220,16 +223,21 @@ void MainWindow::setSaveStatus(bool enabled)
     saveJsonAction->setEnabled(enabled);
 }
 
-void MainWindow::updateImageDeletingStatus(bool checked)
+void MainWindow::updateImageDeletingStatus(int checkState)
 {
     QJsonObject datapoint = m_data->at(current_image_idx).toObject();
-    datapoint["delete"] = checked;
+    datapoint["delete"] = checkState == Qt::Checked ? true : false;
     (*m_data)[current_image_idx] = datapoint;
 }
 
 void MainWindow::fitToWindow()
 {
     m_container->m_image_widget->fitToContainer();
+}
+
+void MainWindow::onQuitAction()
+{
+    
 }
 
 void MainWindow::createActions()
@@ -258,8 +266,12 @@ void MainWindow::createActions()
     nextImageAction = new QAction(QIcon(":/media/icons/next-image.png"), "Next Image", this);
     previousImageAction = new QAction(QIcon(":/media/icons/previous-image.png"), "Previous Image", this);
 
-    deleteImageAction = new QAction(QIcon(":/media/icons/delete-image.png"), "Mark as delete", this);
-    deleteImageAction->setCheckable(true);
+    // deleteImageAction = new QAction(QIcon(":/media/icons/delete-image.png"), "Mark as delete", this);
+    // deleteImageAction->setCheckable(true);
+    deleteImageCheckBox = new QCheckBox(this);
+    deleteImageCheckBox->setText("Mark as delete");
+    deleteImageCheckBox->setChecked(false);
+    deleteImageCheckBox->setEnabled(false);
     zoomInAction = new QAction(QIcon(":/media/icons/zoom-in.png"), "Zoom In", this);
     zoomInAction->setShortcut(QKeySequence::ZoomIn);
     zoomOutAction = new QAction(QIcon(":/media/icons/zoom-out.png"), "Zoom Out", this);
@@ -318,7 +330,8 @@ void MainWindow::createToolbar()
     // toolbar->addAction(pasteAction);
     // toolbar->addAction(undoAction);
     // toolbar->addAction(redoAction);
-    toolbar->addAction(deleteImageAction);
+    // toolbar->addAction(deleteImageAction);
+    toolbar->addWidget(deleteImageCheckBox);
     toolbar->addAction(zoomInAction);
     toolbar->addAction(zoomOutAction);
     toolbar->addAction(fitToWindowAction);
@@ -346,9 +359,10 @@ void MainWindow::createConnections()
     QObject::connect(previousImageAction, &QAction::triggered, this, &MainWindow::previousImage);
     QObject::connect(previousImageAction, &QAction::triggered, this, &MainWindow::resetScaling);
     
-    QObject::connect(deleteImageAction, &QAction::triggered, this, &MainWindow::updateImageDeletingStatus);
+    // QObject::connect(deleteImageAction, &QAction::triggered, this, &MainWindow::updateImageDeletingStatus);
+    QObject::connect(deleteImageCheckBox, &QCheckBox::stateChanged, this, &MainWindow::updateImageDeletingStatus);
 
-    QObject::connect(quitAction, &QAction::triggered, this, &QApplication::quit);
+    QObject::connect(quitAction, &QAction::triggered, this, &MainWindow::onQuitAction);
 }
 
 void MainWindow::enableImageFeatures(bool enabled)

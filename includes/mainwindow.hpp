@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QCheckBox>
 
 #include <memory>
 
@@ -43,10 +44,12 @@ public slots:
     void resetScaling();
 
     // for saving annotations
-    void updateImageDeletingStatus(bool checked);
+    void updateImageDeletingStatus(int checkState);
     void saveAnnotatationsForImage(qsizetype image_idx);
     void setSaveStatus(bool);
     void setActiveSaveStatus();
+
+    void onQuitAction();
 
 private:
     // File Menu actions
@@ -61,7 +64,8 @@ private:
     // QAction* pasteAction;
     // QAction* undoAction;
     // QAction* redoAction;
-    QAction* deleteImageAction = nullptr;
+    // QAction* deleteImageAction = nullptr;
+    QCheckBox* deleteImageCheckBox = nullptr;
     QAction* zoomInAction = nullptr;
     QAction* zoomOutAction = nullptr;
     QAction* fitToWindowAction = nullptr;
