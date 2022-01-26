@@ -162,8 +162,7 @@ void MainWindow::loadData(qsizetype image_idx)
     fs::path BASE_DIR(m_directory.path().toStdString());
     QJsonObject data = m_data->at(image_idx).toObject();
     fs::path filename { data["filename"].toString().toStdString() };
-    fs::path filepath { data["filepath"].toString().toStdString() };
-    QDir path = QDir(BASE_DIR / filepath / filename);
+    QDir path = QDir(BASE_DIR / filename);
     m_container->m_image_widget->setImage(path);
     m_container->m_annotation_widget->setData(data["annotations"].toArray());
     deleteImageCheckBox->setChecked(data["delete"].toBool());
