@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/">
+        <file>media/icons/close-image.png</file>
+        <file>media/icons/copy.png</file>
+        <file>media/icons/cut.png</file>
+        <file>media/icons/fit-to-screen.png</file>
+        <file>media/icons/logo-uit.ico</file>
+        <file>media/icons/logo-uit.png</file>
+        <file>media/icons/next-image.png</file>
+        <file>media/icons/delete-image.png</file>
+        <file>media/icons/open-image.png</file>
+        <file>media/icons/paste.png</file>
+        <file>media/icons/previous-image.png</file>
+        <file>media/icons/quit.png</file>
+        <file>media/icons/redo.png</file>
+        <file>media/icons/save-file.png</file>
+        <file>media/icons/undo.png</file>
+        <file>media/icons/zoom-in.png</file>
+        <file>media/icons/zoom-out.png</file>
+        <file>media/icons/add.png</file>
+        <file>media/icons/delete.png</file>
+        <file>media/images/no-image.jpg</file>
+        <file>media/images/warning.png</file>
+    </qresource>
+</RCC>
