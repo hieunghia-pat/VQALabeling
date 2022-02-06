@@ -2,6 +2,7 @@
 #include "annotation_widget.hpp"
 
 #include <QLabel>
+#include <QString>
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -17,8 +18,9 @@
 AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     : QGroupBox{parent}
 {
+    m_index = ith;
     m_questionGroup = new QGroupBox();
-    m_questionGroup->setTitle("Question: ");
+    m_questionGroup->setTitle(QString("Question %1: ").arg(m_index+1));
     m_questionLineEdit = new QLineEdit();
     m_questionLayout = new QVBoxLayout(m_questionGroup);
     m_questionLayout->addWidget(m_questionLineEdit);
@@ -31,7 +33,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_del_button->setIcon(QIcon(":/media/icons/delete.png"));
 
     m_answerGroup = new QGroupBox();
-    m_answerGroup->setTitle("Answer: ");
+    m_answerGroup->setTitle(QString("Answer %1: ").arg(m_index+1));
     m_answerLineEdit = new QLineEdit();
     m_answerLayout = new QVBoxLayout(m_answerGroup);
     m_answerLayout->addWidget(m_answerLineEdit);
@@ -62,15 +64,15 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_layout->addLayout(m_qa_layout);
     m_layout->addLayout(m_button_layout);
 
-    QObject::connect(m_add_button, &QPushButton::clicked, [container, ith]() {
-        static_cast<AnnotationWidget*>(container)->addAnnotation(ith);
+    QObject::connect(m_add_button, &QPushButton::clicked, [container, this]() {
+        static_cast<AnnotationWidget*>(container)->addAnnotation(this->m_index);
     });
-    QObject::connect(m_del_button, &QPushButton::clicked, [container, ith]() {
-        static_cast<AnnotationWidget*>(container)->deleteAnnotation(ith);
+    QObject::connect(m_del_button, &QPushButton::clicked, [container, this]() {
+        static_cast<AnnotationWidget*>(container)->deleteAnnotation(this->m_index);
     });
 }
 
-std::shared_ptr<QJsonObject> AnnotationBox::annotation() const
+std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
         QPair<QString, QJsonValue>("question", m_questionLineEdit->text()),
@@ -79,11 +81,23 @@ std::shared_ptr<QJsonObject> AnnotationBox::annotation() const
     });
 }
 
-void AnnotationBox::setAnnotation(QJsonObject const& data) const
+void AnnotationBox::setAnnotation(QJsonObject const& data)
 {
     m_questionLineEdit->setText(data["question"].toString());
     m_answerLineEdit->setText(data["answer"].toString());
     m_selection_box->setCurrentIndex(data["type"].toInt());
+}
+
+qint16 AnnotationBox::index()
+{
+    return m_index;
+}
+
+void AnnotationBox::setIndex(qint16 index)
+{
+    m_index = index;
+    m_questionGroup->setTitle(QString("Question %1: ").arg(m_index+1));
+    m_answerGroup->setTitle(QString("Answer %1: ").arg(m_index+1));
 }
 
 AnnotationBox::~AnnotationBox()

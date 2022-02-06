@@ -27,10 +27,12 @@ public:
 
 signals:
     void haveAdjusted();
+    void changedNumberOfAnnotations();
 
 public slots:
     void addAnnotation(qsizetype ith);
     void deleteAnnotation(qsizetype ith);
+    void reassignIndex();
 
 private:
     QVBoxLayout* m_layout = nullptr;

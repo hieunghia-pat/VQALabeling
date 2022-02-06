@@ -17,6 +17,8 @@ public:
     void setSelectedFile(QString const& filename);
     QString selectedFile();
 
+    bool isFirstOpen;
+
     ~SaveJsonDialog();
 
 public slots:
@@ -24,7 +26,6 @@ public slots:
     void toggleFileSelected(bool);
 
 private:
-    bool m_is_novel_selected_file;
     QString m_selected_file;
 
     void initializeDialog();

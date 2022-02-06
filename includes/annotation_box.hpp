@@ -17,8 +17,11 @@ public:
     // method
     AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent = nullptr);
 
-    std::shared_ptr<QJsonObject> annotation() const;
-    void setAnnotation(QJsonObject const& data) const;
+    std::shared_ptr<QJsonObject> annotation();
+    void setAnnotation(QJsonObject const& data);
+
+    qint16 index();
+    void setIndex(qint16 index);
 
     ~AnnotationBox();
 
@@ -40,6 +43,9 @@ public:
     QHBoxLayout* m_button_layout = nullptr;
     QVBoxLayout* m_qa_layout = nullptr;
     QVBoxLayout* m_layout = nullptr;
+
+private:
+    qint16 m_index;
 
 };
 

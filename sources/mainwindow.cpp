@@ -78,16 +78,17 @@ void MainWindow::openFolder()
 
 void MainWindow::saveJsonFile()
 {
-    save_json_dialog->openDialog(open_folder_dialog->m_history);
-
-    if (!save_json_dialog->selectedFiles().isEmpty())
+    if (save_json_dialog->isFirstOpen)
     {
-        saveAnnotatationsForImage(current_image_idx);
-        if (save_json_dialog->selectedFiles().size() > 0)
-            save_json_dialog->setSelectedFile(save_json_dialog->selectedFiles().constLast());
-        saveJson(save_json_dialog->selectedFile());
-        emit saveStatusEnabledChanged(false); // have saved changed things
+        save_json_dialog->openDialog(open_folder_dialog->m_history);
+        if (save_json_dialog->selectedFiles().isEmpty())
+            return;
+        save_json_dialog->setSelectedFile(save_json_dialog->selectedFiles().constLast());
     }
+
+    saveAnnotatationsForImage(current_image_idx);
+    saveJson(save_json_dialog->selectedFile());
+    emit saveStatusEnabledChanged(false); // have saved changed things
 }
 
 void MainWindow::loadJson(QString const& folder)

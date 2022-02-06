@@ -10,6 +10,7 @@
 #include <QDialog>
 
 #include <memory>
+#include <iostream>
 
 AnnotationWidget::AnnotationWidget(QWidget* parent)
     : QScrollArea(parent)
@@ -18,6 +19,7 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     for (qint16 ith = 0; ith < m_defaultNumOfAnns; ith++)
     {
         m_annotation_boxes.append(new AnnotationBox(ith, this, this));
+        m_annotation_boxes[ith]->setIndex(ith);
     }
 
     m_layout = new QVBoxLayout(m_container);
@@ -39,6 +41,8 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     setWidgetResizable(true);
     setAlignment(Qt::AlignCenter);
+
+    QObject::connect(this, &AnnotationWidget::changedNumberOfAnnotations, this, &AnnotationWidget::reassignIndex);
 }
 
 std::shared_ptr<QJsonArray> AnnotationWidget::data() const
@@ -60,14 +64,14 @@ QVBoxLayout *AnnotationWidget::layout()
 
 void AnnotationWidget::setData(QJsonArray const& data)
 {
-    if (data.size() < m_annotation_boxes.size())
-        for (qsizetype ith = data.size(); ith < m_annotation_boxes.size(); ith++)
-            deleteAnnotation(ith);
+    while (m_annotation_boxes.size() > data.size())
+        deleteAnnotation(m_annotation_boxes.size()-1);
+
+    while (m_annotation_boxes.size() < data.size())
+        addAnnotation(m_annotation_boxes.size()-1);
 
     for (qsizetype ith = 0; ith < data.size(); ith++)
-    {
         m_annotation_boxes[ith]->setAnnotation(data[ith].toObject());
-    }
 }
 
 AnnotationWidget::~AnnotationWidget()
@@ -79,9 +83,12 @@ void AnnotationWidget::addAnnotation(qsizetype ith)
 {
     ith += 1;
     AnnotationBox* new_box = new AnnotationBox(ith, this, this);
+    new_box->setIndex(ith);
+    new_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     m_annotation_boxes.insert(ith, new_box);
-    m_annotation_boxes[ith]->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     m_layout->insertWidget(ith, new_box);
+    
+    emit changedNumberOfAnnotations();
 }
 
 void AnnotationWidget::deleteAnnotation(qsizetype ith)
@@ -94,5 +101,14 @@ void AnnotationWidget::deleteAnnotation(qsizetype ith)
     box->setParent(nullptr);
     m_layout->update();
 
-    m_annotation_boxes.remove(ith);
+    m_annotation_boxes.removeAt(ith);
+    delete box;
+
+    emit changedNumberOfAnnotations();
+}
+
+void AnnotationWidget::reassignIndex()
+{
+    for (qsizetype ith = 0; ith < m_annotation_boxes.size(); ith++)
+        m_annotation_boxes[ith]->setIndex(ith);
 }

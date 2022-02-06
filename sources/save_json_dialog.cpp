@@ -20,22 +20,22 @@ void SaveJsonDialog::initializeDialog()
     setMimeTypeFilters({ "application/json" });
     setDefaultSuffix("json");
     selectMimeTypeFilter("application/json");
-    m_is_novel_selected_file = true;
+    isFirstOpen = true;
     m_selected_file = "annotation.json";
 }
 
 void SaveJsonDialog::toggleFileSelected(bool novelSelectedFile)
 {
-    m_is_novel_selected_file = novelSelectedFile;
+    isFirstOpen = novelSelectedFile;
 }
 
 int SaveJsonDialog::openDialog(QList<QString> const& open_history)
 {
-    if (m_is_novel_selected_file)
+    if (isFirstOpen)
     {
         setDirectory(open_history.constLast());
         int returned_code = static_cast<QDialog::DialogCode>(exec());
-        m_is_novel_selected_file = returned_code == QDialog::Accepted ? false : true;
+        isFirstOpen = returned_code == QDialog::Accepted ? false : true;
         return returned_code;
     }
 
