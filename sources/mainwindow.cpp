@@ -208,12 +208,15 @@ void MainWindow::saveJson(QString const& filename)
 
 void MainWindow::loadData(qint16 image_idx)
 {
-    if (image_idx >= dataSize())
+    if (image_idx > dataSize())
     {
         QMessageBox::warning(this, "Loadding error occured!", "Can not load image");
         m_container->m_annotation_widget->setEnabled(false);
         return;
     }
+
+    if (image_idx == dataSize())
+        image_idx--;
 
     fs::path BASE_DIR(m_directory.path().toStdString());
     QDir path;
