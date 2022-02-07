@@ -25,6 +25,10 @@ public:
 
     ~ImageWidget();
 
+signals:
+    void nextImage();
+    void backImage();
+
 public slots:
     void fitToContainer();
     void zoomIn();
@@ -32,12 +36,14 @@ public slots:
     void resetScaling();
 
 private:
-    QDir m_default_image_dir {QString("../media/images/no-image.jpg")};
     std::shared_ptr<QImage> m_image = nullptr;
     QLabel* m_image_label = nullptr;
     qfloat16 m_scaled_factor = 1.;
 
     void scaleImage(qfloat16 scaled);
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
 };
 
 #endif // IMAGE_WIDGET_HPP

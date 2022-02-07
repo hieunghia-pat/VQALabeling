@@ -8,6 +8,7 @@
 #include <QScrollArea>
 #include <QPushButton>
 #include <QJsonArray>
+#include <QKeyEvent>
 
 #include <memory>
 
@@ -23,11 +24,15 @@ public:
     void setData(QJsonArray const& data);
     QVBoxLayout* layout();
 
+    bool isEmpty();
+
     ~AnnotationWidget();
 
 signals:
     void haveAdjusted();
     void changedNumberOfAnnotations();
+    void nextImage();
+    void backImage();
 
 public slots:
     void addAnnotation(qsizetype ith);
@@ -41,6 +46,9 @@ private:
     QList<AnnotationBox*> m_annotation_boxes {};
 
     QGroupBox* m_container = nullptr;
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
 };
 
 #endif // ANNOTATION_WIDGET_HPP

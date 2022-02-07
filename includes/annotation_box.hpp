@@ -23,6 +23,8 @@ public:
     qint16 index();
     void setIndex(qint16 index);
 
+    bool isEmpty();
+
     ~AnnotationBox();
 
     // attributes
@@ -43,6 +45,18 @@ public:
     QHBoxLayout* m_button_layout = nullptr;
     QVBoxLayout* m_qa_layout = nullptr;
     QVBoxLayout* m_layout = nullptr;
+
+    QString m_tmp_question;
+    QString m_tmp_answer;
+    qint64 m_tmp_type;
+
+signals:
+    void contentChanged();
+
+public slots:
+    void handleQuestionChanged(QString const& question);
+    void handleAnswerChanged(QString const& answer);
+    void handleTypeChanged(qint64 const& type);
 
 private:
     qint16 m_index;

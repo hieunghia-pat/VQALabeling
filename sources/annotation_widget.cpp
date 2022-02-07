@@ -8,6 +8,7 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QDialog>
+#include <QKeyEvent>
 
 #include <memory>
 #include <iostream>
@@ -27,13 +28,7 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     for (auto& ann: m_annotation_boxes)
     {
         ann->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-        
-        QObject::connect(ann->m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationWidget::haveAdjusted);
-        QObject::connect(ann->m_answerLineEdit, &QLineEdit::textChanged, this, &AnnotationWidget::haveAdjusted);
-        QObject::connect(ann->m_add_button, &QPushButton::clicked, this, &AnnotationWidget::haveAdjusted);
-        QObject::connect(ann->m_del_button, &QPushButton::clicked, this, &AnnotationWidget::haveAdjusted);
-        QObject::connect(ann->m_selection_box, &QComboBox::currentIndexChanged, this, &AnnotationWidget::haveAdjusted);
-        
+        QObject::connect(ann, &AnnotationBox::contentChanged, this, &AnnotationWidget::haveAdjusted);
         m_layout->addWidget(ann);
     }
 
@@ -74,6 +69,14 @@ void AnnotationWidget::setData(QJsonArray const& data)
         m_annotation_boxes[ith]->setAnnotation(data[ith].toObject());
 }
 
+bool AnnotationWidget::isEmpty()
+{
+    for (auto& annotation_box: m_annotation_boxes)
+        if (!annotation_box->isEmpty())
+            return false;
+    return true;
+}
+
 AnnotationWidget::~AnnotationWidget()
 {
 
@@ -85,6 +88,7 @@ void AnnotationWidget::addAnnotation(qsizetype ith)
     AnnotationBox* new_box = new AnnotationBox(ith, this, this);
     new_box->setIndex(ith);
     new_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    QObject::connect(new_box, &AnnotationBox::contentChanged, this, &AnnotationWidget::haveAdjusted);
     m_annotation_boxes.insert(ith, new_box);
     m_layout->insertWidget(ith, new_box);
     
@@ -111,4 +115,15 @@ void AnnotationWidget::reassignIndex()
 {
     for (qsizetype ith = 0; ith < m_annotation_boxes.size(); ith++)
         m_annotation_boxes[ith]->setIndex(ith);
+}
+
+void AnnotationWidget::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Left)
+        emit backImage();
+    
+    if (event->key() == Qt::Key_Right)
+        emit nextImage();
+
+    QScrollArea::keyPressEvent(event); // pass the event to the base class
 }

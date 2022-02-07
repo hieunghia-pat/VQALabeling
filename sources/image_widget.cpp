@@ -6,6 +6,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QSize>
+#include <QKeyEvent>
 #include <QScrollArea>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -18,7 +19,6 @@ ImageWidget::ImageWidget(QWidget *parent)
 {
     m_image_label = new QLabel(this);
     m_image_label->setScaledContents(true);
-    setImage(m_default_image_dir);
 
     setWidget(m_image_label);
     setBackgroundRole(QPalette::Dark);
@@ -34,6 +34,7 @@ bool ImageWidget::setImage(QDir const& image_dir)
 
     m_image_label->setPixmap(QPixmap::fromImage(*m_image));
     m_image_label->adjustSize();
+    fitToContainer();
     
     return true;
 }
@@ -83,6 +84,17 @@ void ImageWidget::zoomOut()
 qfloat16 ImageWidget::scaleFactor()
 {
     return m_scaled_factor;
+}
+
+void ImageWidget::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Left)
+        emit backImage();
+    
+    if (event->key() == Qt::Key_Right)
+        emit nextImage();
+
+    QScrollArea::keyPressEvent(event); // pass the event to the base class
 }
 
 ImageWidget::~ImageWidget()

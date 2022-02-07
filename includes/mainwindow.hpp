@@ -10,6 +10,7 @@
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QDir>
+#include <QKeyEvent>
 
 #include <memory>
 
@@ -27,6 +28,8 @@ public:
 
     Container* container();
 
+    qsizetype dataSize();
+
     void closeEvent(QCloseEvent* event);
 
     ~MainWindow();
@@ -34,12 +37,13 @@ public:
 signals:
     void createdNovelFile(bool);
     void saveStatusEnabledChanged(bool);
+    void imageChanged(QString image_name);
 
 public slots:
     // folder interaction slots
     void openFolder();
     void saveJsonFile();
-    void loadData(qsizetype image_idx);
+    void loadData(qint16 image_idx);
     // image slots
     void nextImage();
     void previousImage();
@@ -47,12 +51,16 @@ public slots:
     void zoomIn();
     void zoomOut();
     void resetScaling();
+    
+    void changeWindowTitle(QString title);
 
     // for saving annotations
     void updateImageDeletingStatus(int checkState);
     void saveAnnotatationsForImage(qsizetype image_idx);
     void setSaveStatus(bool);
     void setActiveSaveStatus();
+    void checkAnnotationBox();
+    void onDeleteImageStatusChanged(qint16 state);
 
     void onQuitAction();
 
@@ -110,9 +118,16 @@ private:
     void loadJson(QString const& folder);
     void saveJson(QString const& filename);
 
+    qsizetype findFirstEmptyAnnotation();
+
     // internal data
-    std::shared_ptr<QJsonArray> m_data;
+    std::shared_ptr<QJsonArray> m_data = nullptr;
+    QJsonObject m_default_data;
     QDir m_directory;
+    qint16 m_tmp_check_state;
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
 };
 
 #endif // MAINWINDOW_HPP
