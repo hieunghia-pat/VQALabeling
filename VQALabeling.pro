@@ -26,7 +26,8 @@ HEADERS += includes/annotation_box.hpp \
            includes/mainwindow.hpp \
            includes/open_folder_dialog.hpp \
            includes/save_json_dialog.hpp \
-           includes/save_notification_dialog.hpp
+           includes/save_notification_dialog.hpp \
+           includes/selection_box.hpp
 SOURCES += main.cpp \
            sources/annotation_box.cpp \
            sources/annotation_widget.cpp \
@@ -36,5 +37,6 @@ SOURCES += main.cpp \
            sources/mainwindow.cpp \
            sources/open_folder_dialog.cpp \
            sources/save_json_dialog.cpp \
-           sources/save_notificationn_dialog.cpp
+           sources/save_notificationn_dialog.cpp \
+           sources/selection_box.cpp
 RESOURCES += resources.qrc

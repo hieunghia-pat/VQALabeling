@@ -1,5 +1,6 @@
 #include "annotation_box.hpp"
 #include "annotation_widget.hpp"
+#include "selection_box.hpp"
 
 #include <QLabel>
 #include <QString>
@@ -44,7 +45,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
 
     m_selectionGroup = new QGroupBox();
     m_selectionGroup->setTitle("Question's type");
-    m_selection_box = new QComboBox(m_selectionGroup);
+    m_selection_box = new SelectionBox(m_selectionGroup);
     m_selection_box->insertItems(0, QList<QString>({
         "0 - text",
         "1 - state",
