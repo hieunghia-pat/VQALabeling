@@ -188,7 +188,7 @@ void MainWindow::loadJson(QString const& folder)
         save_json_dialog->setSelectedFile(json_files.constLast().absoluteFilePath());
 
         QTextStream filestream(&file);
-        QByteArray content = filestream.readAll().toLocal8Bit();
+        QByteArray content = filestream.readAll().toUtf8();
         m_data = std::make_shared<QJsonArray>(QJsonDocument::fromJson(content).array());
         file.close();
     }
