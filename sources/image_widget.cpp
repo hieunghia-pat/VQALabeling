@@ -39,6 +39,11 @@ bool ImageWidget::setImage(QDir const& image_dir)
     return true;
 }
 
+QSize ImageWidget::getImageSize()
+{
+    return m_image->size();
+}
+
 void ImageWidget::fitToContainer()
 {
     qfloat16 img_w = m_image->width();

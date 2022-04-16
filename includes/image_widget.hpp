@@ -23,6 +23,8 @@ public:
     bool setImage(QDir const& image_dir);
     qfloat16 scaleFactor();
 
+    QSize getImageSize();
+
     ~ImageWidget();
 
 signals:

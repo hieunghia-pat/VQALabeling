@@ -54,7 +54,11 @@ MainWindow::MainWindow(QWidget *parent)
         annotations.append(QJsonObject({
             QPair<QString, QString>("question", ""),
             QPair<QString, QString>("answer", ""),
-            QPair<QString, qint16>("type", 0) // text is default
+            QPair<QString, bool>("text-QA", true), // text is default
+            QPair<QString, bool>("state-QA", false),
+            QPair<QString, bool>("actionQA", false),
+            QPair<QString, qint16>("question-type", 0),
+            QPair<QString, qint16>("answer-type", 0)
         }));
     m_default_data["annotations"] = annotations;
 
@@ -167,7 +171,11 @@ void MainWindow::loadJson(QString const& folder)
                 QJsonObject annotation {{
                     QPair<QString, QString>("question", ""),
                     QPair<QString, QString>("answer", ""),
-                    QPair<QString, qint16>("type", 0) // text is default
+                    QPair<QString, bool>("text-QA", true), // text is default
+                    QPair<QString, bool>("state-QA", false),
+                    QPair<QString, bool>("action-QA", false),
+                    QPair<QString, qint16>("question-type", 0),
+                    QPair<QString, qint16>("answer-type", 0)
                 }};
                 annotations.append(annotation);
             }
@@ -242,7 +250,10 @@ void MainWindow::loadData(qint16 image_idx)
     {
         previousImageAction->setEnabled(image_idx > 0);
         nextImageAction->setEnabled(image_idx < dataSize()-1);
-        emit imageChanged(m_data->at(image_idx).toObject()["filename"].toString());
+        emit imageChanged(m_data->at(image_idx).toObject()["filename"].toString() + " - " +
+                            QString("[%1x%2]")
+                                .arg(m_container->m_image_widget->getImageSize().width())
+                                .arg(m_container->m_image_widget->getImageSize().height()));
     }
     m_container->m_annotation_widget->setEnabled(enableAnnotationWidget);
     m_tmp_check_state = deleteImageCheckBox->checkState();

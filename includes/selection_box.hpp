@@ -7,7 +7,7 @@
 class SelectionBox: public QComboBox
 {
 public:
-    SelectionBox(QWidget* parent);
+    SelectionBox(QWidget* parent = nullptr);
 
     ~SelectionBox();
 
