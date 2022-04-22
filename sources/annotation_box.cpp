@@ -76,7 +76,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_action_qa_checkbox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     m_tmp_data["action-QA"] = m_action_qa_checkbox->checkState() == Qt::Checked ? true : false;
 
-    m_qa_checkbox_layout = new QHBoxLayout(m_qa_checkbox_group);
+    m_qa_checkbox_layout = new QVBoxLayout(m_qa_checkbox_group);
     m_qa_checkbox_layout->addWidget(m_text_qa_checkbox);
     m_qa_checkbox_layout->addWidget(m_state_qa_checkbox);
     m_qa_checkbox_layout->addWidget(m_action_qa_checkbox);
@@ -89,8 +89,9 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
         "What - 0",
         "Who - 1",
         "Where - 2",
-        "How - 3",
-        "Other - 4"
+        "When - 3",
+        "How - 4",
+        "Other - 5"
     }));
     m_q_selection_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     m_tmp_data["question-type"] = m_q_selection_box->currentIndex();
@@ -115,13 +116,17 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
 
     // layout for QA's type selection
     m_selection_layout = new QVBoxLayout();
-    m_selection_layout->addWidget(m_qa_checkbox_group);
     m_selection_layout->addWidget(m_q_selection_group);
     m_selection_layout->addWidget(m_a_selection_group);
 
+    // annotations layout
+    m_annotation_layout = new QHBoxLayout();
+    m_annotation_layout->addWidget(m_qa_checkbox_group);
+    m_annotation_layout->addLayout(m_selection_layout);
+
     m_layout = new QVBoxLayout(this);
     m_layout->addLayout(m_qa_layout);
-    m_layout->addLayout(m_selection_layout);
+    m_layout->addLayout(m_annotation_layout);
     m_layout->addLayout(m_button_layout);
 
     QObject::connect(m_add_button, &QPushButton::clicked, [container, this]() {

@@ -53,10 +53,11 @@ public:
     QVBoxLayout* m_answerLayout = nullptr;
 
     QVBoxLayout* m_qa_layout = nullptr;
-    QHBoxLayout* m_qa_checkbox_layout = nullptr;
+    QVBoxLayout* m_qa_checkbox_layout = nullptr;
     QHBoxLayout* m_q_selection_layout = nullptr;
     QHBoxLayout* m_a_selection_layout = nullptr;
     QVBoxLayout* m_selection_layout = nullptr;
+    QHBoxLayout* m_annotation_layout = nullptr;
     QHBoxLayout* m_button_layout = nullptr;
     QVBoxLayout* m_layout = nullptr;
 
