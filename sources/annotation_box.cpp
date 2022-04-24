@@ -150,7 +150,7 @@ std::shared_ptr<QJsonObject> AnnotationBox::annotation()
     QString answer = m_answerLineEdit->text();
     bool text_QA = m_text_qa_checkbox->checkState() == Qt::Checked ? true : false;
     bool state_QA = m_state_qa_checkbox->checkState() == Qt::Checked ? true : false;
-    bool action_QA = m_state_qa_checkbox->checkState() == Qt::Checked ? true : false;
+    bool action_QA = m_action_qa_checkbox->checkState() == Qt::Checked ? true : false;
     qint16 q_type = m_q_selection_box->currentIndex();
     qint16 a_type = m_a_selection_box->currentIndex();
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
