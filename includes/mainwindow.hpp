@@ -122,9 +122,9 @@ private:
 
     // internal data
     std::shared_ptr<QJsonArray> m_data = nullptr;
+    QJsonObject m_default_annotation;
     QJsonObject m_default_data;
     QDir m_directory;
-    qint16 m_tmp_check_state;
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;

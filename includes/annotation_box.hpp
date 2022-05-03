@@ -61,7 +61,7 @@ public:
     QHBoxLayout* m_button_layout = nullptr;
     QVBoxLayout* m_layout = nullptr;
 
-    QJsonObject m_tmp_data;
+    QJsonObject m_current_annotation;
 
 signals:
     void contentChanged();
@@ -69,11 +69,11 @@ signals:
 public slots:
     void handleQuestionChanged(QString const& question);
     void handleAnswerChanged(QString const& answer);
-    void handleTextQATypeChanged(bool const& is_text_qa);
-    void handleStateQATypeChanged(bool const& is_state_qa);
-    void handleActionQATypeChanged(bool const& is_action_qa);
-    void handleQuestionTypeChanged(qint16 const& is_q_type);
-    void handleAnswerTypeChanged(qint16 const& is_a_type);
+    void handleQuestionTypeChanged(qint16 const& question_type);
+    void handleAnswerTypeChanged(qint16 const& answer_type);
+    void handleTextQATypeChanged(bool const& text_qa_state);
+    void handleStateQATypeChanged(bool const& state_qa_state);
+    void handleActionQATypeChanged(bool const& action_qa_state);
 
 private:
     qint16 m_index;

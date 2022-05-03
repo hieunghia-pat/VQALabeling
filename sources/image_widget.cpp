@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QImageReader>
+#include <QMessageBox>
 
 #include <memory>
 
@@ -28,9 +29,16 @@ ImageWidget::ImageWidget(QWidget *parent)
 
 bool ImageWidget::setImage(QDir const& image_dir)
 {
+    qDebug() << QString("In ImageWidget::setImage - Loading image from %1").arg(image_dir.absolutePath()).toStdString().c_str();
+
     if (m_image == nullptr)
         m_image = std::make_shared<QImage>();
-    m_image->load(image_dir.path());
+    
+    if (!(m_image->load(image_dir.path())))
+    {
+        qDebug() << QString("In ImageWidget::setImage - Cannot load image from %1").arg(image_dir.path()).toStdString().c_str();
+        QMessageBox::warning(this, QString("Error occured"), QString("Cannot load image from %1").arg(image_dir.path()));
+    }
 
     m_image_label->setPixmap(QPixmap::fromImage(*m_image));
     m_image_label->adjustSize();
