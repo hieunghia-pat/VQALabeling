@@ -3,14 +3,15 @@
 #include <QPair>
 
 const QString QUESTION = "question";
-const QString QUESTION_TYPE = "question-type";
+// const QString QUESTION_TYPE = "question-type";
 
 const QString ANSWER = "answer";
-const QString ANSWER_TYPE = "answer-type";
+// const QString ANSWER_TYPE = "answer-type";
 
-const QString TEXT_QA = "text-QA";
-const QString STATE_QA = "state-QA";
-const QString ACTION_QA = "action-QA";
+// const QString TEXT_QA = "text-QA";
+// const QString STATE_QA = "state-QA";
+// const QString ACTION_QA = "action-QA";
+const QString QA_TYPE = "QA-type";
 
 const QString FILEPATH = "filepath";
 const QString FILENAME = "filename";

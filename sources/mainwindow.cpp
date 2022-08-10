@@ -65,11 +65,12 @@ MainWindow::MainWindow(QWidget *parent)
     m_default_annotation = QJsonObject({
                     QPair<QString, QString>(QUESTION, ""),
                     QPair<QString, QString>(ANSWER, ""),
-                    QPair<QString, bool>(TEXT_QA, true), // text is default
-                    QPair<QString, bool>(STATE_QA, false),
-                    QPair<QString, bool>(ACTION_QA, false),
-                    QPair<QString, qint16>(QUESTION_TYPE, 0),
-                    QPair<QString, qint16>(ANSWER_TYPE, 2) // sentence is default
+                    // QPair<QString, bool>(TEXT_QA, true), // text is default
+                    // QPair<QString, bool>(STATE_QA, false),
+                    // QPair<QString, bool>(ACTION_QA, false),
+                    // QPair<QString, qint16>(QUESTION_TYPE, 0),
+                    // QPair<QString, qint16>(ANSWER_TYPE, 2) // sentence is default
+                    QPair<QString, qint16>(QA_TYPE, 0) // text-QA is default
                 });
     QJsonArray annotations;
     for (qsizetype ith = 0; ith < total_initial_annotations; ith++)

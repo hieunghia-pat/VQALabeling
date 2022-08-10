@@ -21,7 +21,7 @@ fs::path project_path(QDir::currentPath().toStdString());
 fs::path log_folder("logs");
 fs::path log_file_path;
 
-void messageHandler(QtMsgType type, QMessageLogContext const& context, QString const &msg)
+void messageHandler(QtMsgType type, QMessageLogContext const&, QString const &msg)
 {
     static bool create_new_log_file = true;
 
@@ -58,6 +58,7 @@ void messageHandler(QtMsgType type, QMessageLogContext const& context, QString c
             log_stream << localMessage;
             break;
         }
+        default: break;
     }
 
     log_file.close();
