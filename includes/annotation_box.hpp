@@ -9,6 +9,7 @@
 #include <QCheckBox>
 #include <QJsonObject>
 #include <QPushButton>
+#include <QFont>
 
 #include "selection_box.hpp"
 
@@ -32,6 +33,7 @@ public:
     // attributes
     QLineEdit* m_questionLineEdit = nullptr;
     QLineEdit* m_answerLineEdit = nullptr;
+    QLineEdit* m_foreignAnswerLineEdit = nullptr;
 
     QPushButton* m_add_button = nullptr;
     QPushButton* m_del_button = nullptr;
@@ -67,6 +69,9 @@ public:
     QVBoxLayout* m_layout = nullptr;
 
     QJsonObject m_current_annotation;
+
+    QFont* font = nullptr;
+    QFont* boldFont = nullptr;
 
 signals:
     void contentChanged();

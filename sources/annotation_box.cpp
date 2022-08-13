@@ -14,14 +14,23 @@
 #include <QString>
 #include <QPushButton>
 #include <QIcon>
+#include <QFont>
 
 #include <memory>
 
 AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     : QGroupBox{parent}
 {
+    QFont* font = new QFont();
+    font->setPointSize(17);
+
+    QFont* boldFont = new QFont();
+    boldFont->setPointSize(17);
+    boldFont->setWeight(QFont::Black);
+
     m_index = ith;
     setTitle(QString("Annotation %1: ").arg(m_index+1));
+    setFont(*font);
 
     // Question-answer line editor
     m_questionGroup = new QGroupBox();
@@ -34,9 +43,15 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_answerGroup = new QGroupBox();
     m_answerGroup->setTitle("Answer: ");
     m_answerLineEdit = new QLineEdit();
+    m_answerLineEdit->setDisabled(true);
+    m_answerLineEdit->setFont(*boldFont);
+    m_foreignAnswerLineEdit = new QLineEdit();
+    m_foreignAnswerLineEdit->setFont(*font);
     m_answerLayout = new QVBoxLayout(m_answerGroup);
     m_answerLayout->addWidget(m_answerLineEdit);
     m_current_annotation[ANSWER] = m_answerLineEdit->text();
+    m_answerLayout->addWidget(m_foreignAnswerLineEdit);
+    m_current_annotation[ANSWER] = m_foreignAnswerLineEdit->text();
 
     m_qa_layout = new QVBoxLayout();
     m_qa_layout->addWidget(m_questionGroup);
@@ -120,20 +135,21 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     // m_selection_layout->addWidget(m_q_selection_group);
     // m_selection_layout->addWidget(m_a_selection_group);
 
-    // QA's type
-    m_qa_selection_group = new QGroupBox();
-    m_qa_selection_group->setTitle("QA's type");
-    m_qa_selection_box = new SelectionBox();
-    m_qa_selection_box->insertItems(0, QList<QString>{
-        "Text QA",
-        "Non-text QA"
-    });
-    m_qa_selection_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    m_current_annotation[QA_TYPE] = m_qa_selection_box->currentIndex();
+    // // QA's type
+    // m_qa_selection_group = new QGroupBox();
+    // m_qa_selection_group->setTitle("QA's type");
+    // m_qa_selection_box = new SelectionBox();
+    // m_qa_selection_box->insertItems(0, QList<QString>{
+    //     "Text QA",
+    //     "Non-text QA"
+    // });
+    // m_qa_selection_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    // m_qa_selection_box->setDisabled(true);
+    // m_current_annotation[QA_TYPE] = m_qa_selection_box->currentIndex();
 
-    // QA's type selection layout
-    m_qa_selection_layout = new QVBoxLayout(m_qa_selection_group);
-    m_qa_selection_layout->addWidget(m_qa_selection_box);
+    // // QA's type selection layout
+    // m_qa_selection_layout = new QVBoxLayout(m_qa_selection_group);
+    // m_qa_selection_layout->addWidget(m_qa_selection_box);
 
     // // annotations layout
     // m_annotation_layout = new QHBoxLayout();
@@ -142,7 +158,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_layout = new QVBoxLayout(this);
     m_layout->addLayout(m_qa_layout);
     // m_layout->addLayout(m_annotation_layout);
-    m_layout->addWidget(m_qa_selection_group);
+    // m_layout->addWidget(m_qa_selection_group);
     m_layout->addLayout(m_button_layout);
 
     QObject::connect(m_add_button, &QPushButton::clicked, [container, this]() {
@@ -152,19 +168,20 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
         static_cast<AnnotationWidget*>(container)->deleteAnnotation(this->m_index);
     });
     QObject::connect(m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleQuestionChanged);
-    QObject::connect(m_answerLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleAnswerChanged);
+    QObject::connect(m_foreignAnswerLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleAnswerChanged);
     // QObject::connect(m_text_qa_checkbox, &QCheckBox::stateChanged, this, &AnnotationBox::handleTextQATypeChanged);
     // QObject::connect(m_state_qa_checkbox, &QCheckBox::stateChanged, this, &AnnotationBox::handleStateQATypeChanged);
     // QObject::connect(m_action_qa_checkbox, &QCheckBox::stateChanged, this, &AnnotationBox::handleActionQATypeChanged);
     // QObject::connect(m_q_selection_box, &SelectionBox::currentIndexChanged, this, &AnnotationBox::handleQuestionTypeChanged);
     // QObject::connect(m_a_selection_box, &SelectionBox::currentIndexChanged, this, &AnnotationBox::handleAnswerTypeChanged);
-    QObject::connect(m_qa_selection_box, &SelectionBox::currentIndexChanged, this, &AnnotationBox::handleQATypeChanged);
+    // QObject::connect(m_qa_selection_box, &SelectionBox::currentIndexChanged, this, &AnnotationBox::handleQATypeChanged);
 }
 
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
     QString question = m_questionLineEdit->text();
     QString answer = m_answerLineEdit->text();
+    QString foreignAnswer = m_foreignAnswerLineEdit->text();
     // bool text_QA = m_text_qa_checkbox->isChecked();
     // bool state_QA = m_state_qa_checkbox->isChecked();
     // bool action_QA = m_action_qa_checkbox->isChecked();
@@ -174,12 +191,13 @@ std::shared_ptr<QJsonObject> AnnotationBox::annotation()
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
         QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
         QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text()),
+        QPair<QString, QJsonValue>(FOREIGN_ANSWER, m_foreignAnswerLineEdit->text()),
         // QPair<QString, QJsonValue>(TEXT_QA, text_QA),
         // QPair<QString, QJsonValue>(STATE_QA, state_QA),
         // QPair<QString, QJsonValue>(ACTION_QA, action_QA),
         // QPair<QString, QJsonValue>(QUESTION_TYPE, q_type),
         // QPair<QString, QJsonValue>(ANSWER_TYPE, a_type)
-        QPair<QString, QJsonValue>(QA_TYPE, m_qa_selection_box->currentIndex())
+        // QPair<QString, QJsonValue>(QA_TYPE, m_qa_selection_box->currentIndex())
     });
 }
 
@@ -194,6 +212,9 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
     QString answer = annotation[ANSWER].toString();
     qDebug() << QString("In AnnotationBox::setAnnotation - Setting answer line edit to %1").arg(answer.size() > 0 ? answer : "\"\"").toStdString().c_str();
     m_answerLineEdit->setText(answer);
+
+    QString foreignAnswer = annotation[FOREIGN_ANSWER].toString();
+    m_foreignAnswerLineEdit->setText(foreignAnswer);
 
     // bool text_QA = annotation[TEXT_QA].toBool();
     // qDebug() << QString("In AnnotationBox::setAnnotation - Setting text QA checkbox to %1")
@@ -223,8 +244,8 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
     //                 .arg(answer_type[a_type]).toStdString().c_str();
     // m_a_selection_box->setCurrentIndex(a_type);
 
-    qint16 qa_type = m_current_annotation[QA_TYPE].toInt();
-    m_qa_selection_box->setCurrentIndex(qa_type);
+    // qint16 qa_type = m_current_annotation[QA_TYPE].toInt();
+    // m_qa_selection_box->setCurrentIndex(qa_type);
 }
 
 qint16 AnnotationBox::index()
@@ -256,16 +277,16 @@ void AnnotationBox::handleQuestionChanged(QString const& question)
 
 void AnnotationBox::handleAnswerChanged(QString const& answer)
 {
-    QString current_answer = m_current_annotation[ANSWER].toString();
+    QString current_answer = m_current_annotation[FOREIGN_ANSWER].toString();
 
     if (answer != current_answer)
     {
         qDebug() << QString("In AnnotationBox::handleContentChanged - annotation changed at %1 from %2 to %3")
-                        .arg(ANSWER)
+                        .arg(FOREIGN_ANSWER)
                         .arg(QString("\"") + current_answer + QString("\""))
                         .arg(QString("\"") + answer + QString("\"")).toStdString().c_str();
 
-        m_current_annotation[ANSWER] = answer;
+        m_current_annotation[FOREIGN_ANSWER] = answer;
         emit contentChanged();
     }
 }
