@@ -107,7 +107,7 @@ qsizetype MainWindow::dataSize()
 
 MainWindow::~MainWindow()
 {
-
+    qDebug() << "In MainWindow::~MainWindow - Existing ...";
 }
 
 qsizetype MainWindow::findFirstEmptyAnnotation()
@@ -116,8 +116,11 @@ qsizetype MainWindow::findFirstEmptyAnnotation()
     {
         QJsonObject sample = m_data->at(ith).toObject();
         QJsonArray annotations = sample[ANNOTATIONS].toArray();
-        if (!m_data->at(ith)[DELETE].toBool())
-            return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
+        // if (!m_data->at(ith)[DELETE].toBool())
+        //     return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
+        for (auto annotation: annotations)
+            if ((annotation[FOREIGN_QUESTION].toString() != "") || (annotation[FOREIGN_ANSWER].toString() != ""))
+                return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
     }
 
     return 0; // else return the first image
@@ -168,7 +171,7 @@ void MainWindow::loadJson(QString const& folder)
     
     if (json_files.size() == 0) // no annotation file
     {
-        qDebug() << QString("In MainWindow::loadJson - There is no json file in %1, creating new one").arg(m_directory.path()).toStdString().c_str();
+        qDebug() << QString("In MainWindow::loadJson - There is no json file in %1, will create new one").arg(m_directory.path()).toStdString().c_str();
         emit createdNovelFile(true);
         QList<QString> image_filters;
         image_filters << "*.jpeg" << "*.png" << "*.jpg";
@@ -186,7 +189,6 @@ void MainWindow::loadJson(QString const& folder)
             // create annotations
             for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
                 annotations.append(m_default_annotation);
-            qDebug() << annotations;
             object[ANNOTATIONS] = annotations;
             m_data->append(object);
         }
@@ -228,7 +230,7 @@ void MainWindow::saveJson(QString const& filename)
     json_file.write(json_data);
     json_file.close();
 
-    qDebug() << QString("In MainWindow::savejson - Saved annotations to %1").arg(filename).toStdString().c_str();
+    qDebug() << QString("In MainWindow::saveJson - Saved annotations to %1").arg(filename).toStdString().c_str();
 }
 
 void MainWindow::loadData(qint16 image_idx)

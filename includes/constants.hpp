@@ -3,10 +3,11 @@
 #include <QPair>
 
 const QString QUESTION = "question";
+const QString FOREIGN_QUESTION = "foreign_question";
 // const QString QUESTION_TYPE = "question-type";
 
 const QString ANSWER = "answer";
-const QString FOREIGN_ANSWER = "foreign-answer";
+const QString FOREIGN_ANSWER = "foreign_answer";
 // const QString ANSWER_TYPE = "answer-type";
 
 // const QString TEXT_QA = "text-QA";

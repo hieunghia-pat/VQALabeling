@@ -32,6 +32,7 @@ public:
 
     // attributes
     QLineEdit* m_questionLineEdit = nullptr;
+    QLineEdit* m_foreignQuestionLineEdit = nullptr;
     QLineEdit* m_answerLineEdit = nullptr;
     QLineEdit* m_foreignAnswerLineEdit = nullptr;
 

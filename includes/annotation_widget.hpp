@@ -12,7 +12,7 @@
 
 #include <memory>
 
-static qsizetype total_initial_annotations = 3;
+static qsizetype total_initial_annotations = 1;
 
 class AnnotationWidget: public QScrollArea
 {

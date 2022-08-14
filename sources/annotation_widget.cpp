@@ -46,8 +46,8 @@ std::shared_ptr<QJsonArray> AnnotationWidget::data() const
 
     for (auto& annotation_box: m_annotation_boxes)
     {
-        qDebug() << QString("In AnnotationWidget::data - Getting data from annotation box %1")
-                                .arg(m_annotation_boxes.indexOf(annotation_box)+1).toStdString().c_str();
+        // qDebug() << QString("In AnnotationWidget::data - Getting data from annotation box %1")
+        //                         .arg(m_annotation_boxes.indexOf(annotation_box)+1).toStdString().c_str();
         annotations->append(*(annotation_box->annotation()));
     }
 
@@ -69,7 +69,7 @@ void AnnotationWidget::setData(QJsonArray const& data)
 
     for (qsizetype ith = 0; ith < data.size(); ith++)
     {
-        qDebug() << QString("In AnnotationWidget::setData - Setting data for annotation box %1").arg(ith+1).toStdString().c_str();
+        // qDebug() << QString("In AnnotationWidget::setData - Setting data for annotation box %1").arg(ith+1).toStdString().c_str();
         m_annotation_boxes[ith]->setAnnotation(data[ith].toObject());
     }
 }

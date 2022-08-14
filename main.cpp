@@ -66,7 +66,7 @@ void messageHandler(QtMsgType type, QMessageLogContext const&, QString const &ms
 
 int main(int argc, char *argv[])
 {
-    qInstallMessageHandler(messageHandler);
+    // qInstallMessageHandler(messageHandler);
 
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/media/icons/logo-uit.ico"));

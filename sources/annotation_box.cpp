@@ -35,23 +35,33 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     // Question-answer line editor
     m_questionGroup = new QGroupBox();
     m_questionGroup->setTitle("Question: ");
+    
     m_questionLineEdit = new QLineEdit();
+    m_questionLineEdit->setDisabled(true);
+    // m_questionLineEdit->setFont(*boldFont);
+    m_current_annotation[QUESTION] = m_questionLineEdit->text();
+
+    m_foreignQuestionLineEdit = new QLineEdit();
+    m_current_annotation[FOREIGN_QUESTION] = m_foreignQuestionLineEdit->text();
+
     m_questionLayout = new QVBoxLayout(m_questionGroup);
     m_questionLayout->addWidget(m_questionLineEdit);
-    m_current_annotation[QUESTION] = m_questionLineEdit->text();
+    m_questionLayout->addWidget(m_foreignQuestionLineEdit);
 
     m_answerGroup = new QGroupBox();
     m_answerGroup->setTitle("Answer: ");
+    
     m_answerLineEdit = new QLineEdit();
     m_answerLineEdit->setDisabled(true);
-    m_answerLineEdit->setFont(*boldFont);
+    // m_answerLineEdit->setFont(*boldFont);
+    m_current_annotation[ANSWER] = m_answerLineEdit->text();
+
     m_foreignAnswerLineEdit = new QLineEdit();
-    m_foreignAnswerLineEdit->setFont(*font);
+    m_current_annotation[FOREIGN_ANSWER] = m_foreignAnswerLineEdit->text();
+    
     m_answerLayout = new QVBoxLayout(m_answerGroup);
     m_answerLayout->addWidget(m_answerLineEdit);
-    m_current_annotation[ANSWER] = m_answerLineEdit->text();
     m_answerLayout->addWidget(m_foreignAnswerLineEdit);
-    m_current_annotation[ANSWER] = m_foreignAnswerLineEdit->text();
 
     m_qa_layout = new QVBoxLayout();
     m_qa_layout->addWidget(m_questionGroup);
@@ -167,7 +177,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     QObject::connect(m_del_button, &QPushButton::clicked, [container, this]() {
         static_cast<AnnotationWidget*>(container)->deleteAnnotation(this->m_index);
     });
-    QObject::connect(m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleQuestionChanged);
+    QObject::connect(m_foreignQuestionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleQuestionChanged);
     QObject::connect(m_foreignAnswerLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleAnswerChanged);
     // QObject::connect(m_text_qa_checkbox, &QCheckBox::stateChanged, this, &AnnotationBox::handleTextQATypeChanged);
     // QObject::connect(m_state_qa_checkbox, &QCheckBox::stateChanged, this, &AnnotationBox::handleStateQATypeChanged);
@@ -180,6 +190,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
     QString question = m_questionLineEdit->text();
+    QString foreignQuestion = m_foreignQuestionLineEdit->text();
     QString answer = m_answerLineEdit->text();
     QString foreignAnswer = m_foreignAnswerLineEdit->text();
     // bool text_QA = m_text_qa_checkbox->isChecked();
@@ -190,6 +201,7 @@ std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
         QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
+        QPair<QString, QJsonValue>(FOREIGN_QUESTION, m_foreignQuestionLineEdit->text()),
         QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text()),
         QPair<QString, QJsonValue>(FOREIGN_ANSWER, m_foreignAnswerLineEdit->text()),
         // QPair<QString, QJsonValue>(TEXT_QA, text_QA),
@@ -206,11 +218,15 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
     m_current_annotation = annotation;
 
     QString question = annotation[QUESTION].toString();
-    qDebug() << QString("In AnnotationBox::setAnnotation - Setting question line edit to %1").arg(question.size() > 0 ? question : "\"\"").toStdString().c_str();
+    // qDebug() << QString("In AnnotationBox::setAnnotation - Setting question line edit to %1").arg(question.size() > 0 ? question : "\"\"").toStdString().c_str();
     m_questionLineEdit->setText(question);
 
+    QString foreignQuestion = annotation[FOREIGN_QUESTION].toString();
+    // qDebug() << QString("In AnnotationBox::setAnnotation - Setting foreign question line edit to %1").arg(question.size() > 0 ? question : "\"\"").toStdString().c_str();
+    m_foreignQuestionLineEdit->setText(foreignQuestion);
+
     QString answer = annotation[ANSWER].toString();
-    qDebug() << QString("In AnnotationBox::setAnnotation - Setting answer line edit to %1").arg(answer.size() > 0 ? answer : "\"\"").toStdString().c_str();
+    // qDebug() << QString("In AnnotationBox::setAnnotation - Setting answer line edit to %1").arg(answer.size() > 0 ? answer : "\"\"").toStdString().c_str();
     m_answerLineEdit->setText(answer);
 
     QString foreignAnswer = annotation[FOREIGN_ANSWER].toString();
@@ -261,16 +277,16 @@ void AnnotationBox::setIndex(qint16 index)
 
 void AnnotationBox::handleQuestionChanged(QString const& question)
 {
-    QString current_question = m_current_annotation[QUESTION].toString();
+    QString current_question = m_current_annotation[FOREIGN_QUESTION].toString();
 
     if (question != current_question)
     {
-        qDebug() << QString("In AnnotationBox::handleContentChanged - annotation changed at %1 from %2 to %3")
-                        .arg(QUESTION)
-                        .arg(QString("\"") + current_question + QString("\""))
-                        .arg(QString("\"") + question + QString("\"")).toStdString().c_str();
+        // qDebug() << QString("In AnnotationBox::handleContentChanged - annotation changed at %1 from %2 to %3")
+        //                 .arg(FOREIGN_QUESTION)
+        //                 .arg(QString("\"") + current_question + QString("\""))
+        //                 .arg(QString("\"") + question + QString("\"")).toStdString().c_str();
 
-        m_current_annotation[QUESTION] = question;
+        m_current_annotation[FOREIGN_QUESTION] = question;
         emit contentChanged();
     }
 }
@@ -281,10 +297,10 @@ void AnnotationBox::handleAnswerChanged(QString const& answer)
 
     if (answer != current_answer)
     {
-        qDebug() << QString("In AnnotationBox::handleContentChanged - annotation changed at %1 from %2 to %3")
-                        .arg(FOREIGN_ANSWER)
-                        .arg(QString("\"") + current_answer + QString("\""))
-                        .arg(QString("\"") + answer + QString("\"")).toStdString().c_str();
+        // qDebug() << QString("In AnnotationBox::handleContentChanged - annotation changed at %1 from %2 to %3")
+        //                 .arg(FOREIGN_ANSWER)
+        //                 .arg(QString("\"") + current_answer + QString("\""))
+        //                 .arg(QString("\"") + answer + QString("\"")).toStdString().c_str();
 
         m_current_annotation[FOREIGN_ANSWER] = answer;
         emit contentChanged();
