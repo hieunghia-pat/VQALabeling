@@ -3,17 +3,9 @@
 #include <QPair>
 
 const QString QUESTION = "question";
-const QString FOREIGN_QUESTION = "foreign_question";
-// const QString QUESTION_TYPE = "question-type";
-
 const QString ANSWER = "answer";
-const QString FOREIGN_ANSWER = "foreign_answer";
-// const QString ANSWER_TYPE = "answer-type";
+const QString REASON = "reason";
 
-// const QString TEXT_QA = "text-QA";
-// const QString STATE_QA = "state-QA";
-// const QString ACTION_QA = "action-QA";
-const QString QA_TYPE = "QA-type";
 
 const QString FILEPATH = "filepath";
 const QString FILENAME = "filename";

@@ -32,7 +32,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     setTitle(QString("Annotation %1: ").arg(m_index+1));
     setFont(*font);
 
-    // Question-answer line editor
+    // Question-answer-reasoning line editor
     m_questionGroup = new QGroupBox();
     m_questionGroup->setTitle("Question: ");
     
@@ -51,9 +51,19 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_answerLayout = new QVBoxLayout(m_answerGroup);
     m_answerLayout->addWidget(m_answerLineEdit);
 
+    m_reasonGroup = new QGroupBox();
+    m_reasonGroup->setTitle("Reason");
+
+    m_reasonLineEdit = new QLineEdit();
+    m_current_annotation[REASON] = m_reasonLineEdit->text();
+
+    m_reasonLayout = new QVBoxLayout(m_reasonGroup);
+    m_reasonLayout->addWidget(m_reasonLineEdit);
+
     m_qa_layout = new QVBoxLayout();
     m_qa_layout->addWidget(m_questionGroup);
     m_qa_layout->addWidget(m_answerGroup);
+    m_qa_layout->addWidget(m_reasonGroup);
 
     // manipulation button
     m_add_button = new QPushButton();
@@ -68,23 +78,9 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_button_layout->addWidget(m_del_button);
     m_button_layout->setAlignment(Qt::AlignRight);
 
-    // QA's type
-    m_qa_selection_group = new QGroupBox();
-    m_qa_selection_group->setTitle("QA's type");
-    m_qa_selection_box = new SelectionBox();
-    m_qa_selection_box->insertItems(0, QList<QString>{
-        "Text QA",
-        "Non-text QA"
-    });
-    m_qa_selection_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    m_current_annotation[QA_TYPE] = m_qa_selection_box->currentIndex();
-    m_qa_selection_layout = new QVBoxLayout(m_qa_selection_group);
-    m_qa_selection_layout->addWidget(m_qa_selection_box);
-
     // main layout
     m_layout = new QVBoxLayout(this);
     m_layout->addLayout(m_qa_layout);
-    m_layout->addWidget(m_qa_selection_group);
     m_layout->addLayout(m_button_layout);
 
     QObject::connect(m_add_button, &QPushButton::clicked, [container, this]() {
@@ -95,7 +91,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     });
     QObject::connect(m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleQuestionChanged);
     QObject::connect(m_answerLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleAnswerChanged);
-    QObject::connect(m_qa_selection_box, &SelectionBox::currentIndexChanged, this, &AnnotationBox::handleQATypeChanged);
+    QObject::connect(m_reasonLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleReasonChanged);
 }
 
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
@@ -103,7 +99,7 @@ std::shared_ptr<QJsonObject> AnnotationBox::annotation()
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
         QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
         QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text()),
-        QPair<QString, QJsonValue>(QA_TYPE, m_qa_selection_box->currentIndex())
+        QPair<QString, QJsonValue>(REASON, m_reasonLineEdit->text())
     });
 }
 
@@ -117,8 +113,8 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
     QString answer = annotation[ANSWER].toString();
     m_answerLineEdit->setText(answer);
 
-    qint16 qa_type = m_current_annotation[QA_TYPE].toInt();
-    m_qa_selection_box->setCurrentIndex(qa_type);
+    QString reason = m_current_annotation[REASON].toString();
+    m_reasonLineEdit->setText(reason);
 }
 
 qint16 AnnotationBox::index()
@@ -134,38 +130,38 @@ void AnnotationBox::setIndex(qint16 index)
 
 void AnnotationBox::handleQuestionChanged(QString const& question)
 {
-    QString current_question = m_current_annotation[FOREIGN_QUESTION].toString();
+    QString current_question = m_current_annotation[QUESTION].toString();
 
     if (question != current_question)
     {
-        m_current_annotation[FOREIGN_QUESTION] = question;
+        m_current_annotation[QUESTION] = question;
         emit contentChanged();
     }
 }
 
 void AnnotationBox::handleAnswerChanged(QString const& answer)
 {
-    QString current_answer = m_current_annotation[FOREIGN_ANSWER].toString();
+    QString current_answer = m_current_annotation[ANSWER].toString();
 
     if (answer != current_answer)
     {
-        m_current_annotation[FOREIGN_ANSWER] = answer;
+        m_current_annotation[ANSWER] = answer;
         emit contentChanged();
     }
 }
 
-void AnnotationBox::handleQATypeChanged(qint16 const& type) {
-    qint16 current_qa_type = m_current_annotation[QA_TYPE].toInt();
+void AnnotationBox::handleReasonChanged(QString const& reason) {
+    QString current_reason= m_current_annotation[REASON].toString();
 
-    if (type != current_qa_type) {
-        m_current_annotation[QA_TYPE] = type;
+    if (reason != current_reason) {
+        m_current_annotation[REASON] = current_reason;
         emit contentChanged();
     }
 }
 
 bool AnnotationBox::isEmpty()
 {
-    return (m_questionLineEdit->text().isEmpty() && m_answerLineEdit->text().isEmpty());
+    return (m_questionLineEdit->text().isEmpty() && m_answerLineEdit->text().isEmpty() && m_reasonLineEdit->text().isEmpty());
 }
 
 AnnotationBox::~AnnotationBox()

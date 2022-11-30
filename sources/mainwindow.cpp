@@ -65,12 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_default_annotation = QJsonObject({
                     QPair<QString, QString>(QUESTION, ""),
                     QPair<QString, QString>(ANSWER, ""),
-                    // QPair<QString, bool>(TEXT_QA, true), // text is default
-                    // QPair<QString, bool>(STATE_QA, false),
-                    // QPair<QString, bool>(ACTION_QA, false),
-                    // QPair<QString, qint16>(QUESTION_TYPE, 0),
-                    // QPair<QString, qint16>(ANSWER_TYPE, 2) // sentence is default
-                    QPair<QString, qint16>(QA_TYPE, 0) // text-QA is default
+                    QPair<QString, QString>(REASON, "")
                 });
     QJsonArray annotations;
     for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
@@ -119,7 +114,7 @@ qsizetype MainWindow::findFirstEmptyAnnotation()
         // if (!m_data->at(ith)[DELETE].toBool())
         //     return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
         for (auto annotation: annotations)
-            if ((annotation[FOREIGN_QUESTION].toString() != "") || (annotation[FOREIGN_ANSWER].toString() != ""))
+            if ((annotation[REASON].toString() != "") || (annotation[REASON].toString() != ""))
                 return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
     }
 
