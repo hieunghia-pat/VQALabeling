@@ -52,7 +52,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_answerLayout->addWidget(m_answerLineEdit);
 
     m_reasonGroup = new QGroupBox();
-    m_reasonGroup->setTitle("Reason");
+    m_reasonGroup->setTitle("Explaination: ");
 
     m_reasonLineEdit = new QLineEdit();
     m_current_annotation[REASON] = m_reasonLineEdit->text();

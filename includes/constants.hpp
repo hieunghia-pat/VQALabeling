@@ -4,7 +4,7 @@
 
 const QString QUESTION = "question";
 const QString ANSWER = "answer";
-const QString REASON = "reason";
+const QString REASON = "explaination";
 
 
 const QString FILEPATH = "filepath";
