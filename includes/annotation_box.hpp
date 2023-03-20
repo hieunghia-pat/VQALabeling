@@ -6,7 +6,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
-#include <QCheckBox>
 #include <QJsonObject>
 #include <QPushButton>
 #include <QFont>
@@ -33,7 +32,6 @@ public:
     // attributes
     QLineEdit* m_questionLineEdit = nullptr;
     QLineEdit* m_answerLineEdit = nullptr;
-    QCheckBox* m_checkBox = nullptr;
 
     QPushButton* m_add_button = nullptr;
     QPushButton* m_del_button = nullptr;
@@ -59,7 +57,6 @@ signals:
 public slots:
     void handleQuestionChanged(QString const& question);
     void handleAnswerChanged(QString const& answer);
-    void handleAmbiguousChanged(int const& checkState);
 
 private:
     qint16 m_index;

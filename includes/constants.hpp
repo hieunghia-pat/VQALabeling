@@ -4,7 +4,6 @@
 
 const QString QUESTION = "question";
 const QString ANSWER = "answer";
-const QString AMBIGUOUS = "ambiguous";
 
 const QString FILEPATH = "filepath";
 const QString FILENAME = "filename";

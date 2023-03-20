@@ -65,8 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_default_annotation = QJsonObject({
         QPair<QString, QString>(QUESTION, ""),
-        QPair<QString, QString>(ANSWER, ""),
-        QPair<QString, bool>(AMBIGUOUS, false)
+        QPair<QString, QString>(ANSWER, "")
     });
     QJsonArray annotations;
     for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
