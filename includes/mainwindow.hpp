@@ -79,6 +79,8 @@ private:
     // QAction* redoAction;
     // QAction* deleteImageAction = nullptr;
     QCheckBox* deleteImageCheckBox = nullptr;
+    QAction* rotateLeftAction = nullptr;
+    QAction* rotateRightAction = nullptr;
     QAction* zoomInAction = nullptr;
     QAction* zoomOutAction = nullptr;
     QAction* fitToWindowAction = nullptr;

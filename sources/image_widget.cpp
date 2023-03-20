@@ -12,6 +12,7 @@
 #include <QPushButton>
 #include <QImageReader>
 #include <QMessageBox>
+#include <QTransform>
 
 #include <memory>
 
@@ -82,6 +83,26 @@ void ImageWidget::scaleImage(qfloat16 scaled)
 void ImageWidget::resetScaling()
 {
     m_scaled_factor = 1.;
+}
+
+void ImageWidget::rotateLeft() {
+    qfloat16 image_w = m_image_label->pixmap().width();
+    qfloat16 image_h = m_image_label->pixmap().height();
+
+    QTransform rotate_left = QTransform().rotate(-90);
+    m_image_label->setPixmap(m_image_label->pixmap().transformed(rotate_left));
+    m_image_label->resize(QSize(image_w, image_h));
+    scaleImage(1.);
+}
+
+void ImageWidget::rotateRight() {
+    qfloat16 image_w = m_image_label->pixmap().width();
+    qfloat16 image_h = m_image_label->pixmap().height();
+
+    QTransform rotate_right = QTransform().rotate(90);
+    m_image_label->setPixmap(m_image_label->pixmap().transformed(rotate_right));
+    m_image_label->resize(QSize(image_w, image_h));
+    scaleImage(1.);
 }
 
 void ImageWidget::zoomIn()

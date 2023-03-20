@@ -1,4 +1,4 @@
-﻿#include "mainwindow.hpp"
+#include "mainwindow.hpp"
 #include "annotation_widget.hpp"
 #include "open_folder_dialog.hpp"
 #include "save_json_dialog.hpp"
@@ -401,6 +401,8 @@ void MainWindow::createActions()
     deleteImageCheckBox->setText("Mark as delete");
     deleteImageCheckBox->setChecked(false);
     deleteImageCheckBox->setEnabled(false);
+    rotateLeftAction = new QAction(QIcon(":/media/icons/rotate-left.png"), "Rotate left", this);
+    rotateRightAction = new QAction(QIcon(":/media/icons/rotate-right.png"), "Rotate right", this);
     zoomInAction = new QAction(QIcon(":/media/icons/zoom-in.png"), "Zoom In", this);
     zoomInAction->setShortcut(QKeySequence::ZoomIn);
     zoomOutAction = new QAction(QIcon(":/media/icons/zoom-out.png"), "Zoom Out", this);
@@ -432,6 +434,8 @@ void MainWindow::createEditMenu()
     // editMenu->addAction(undoAction);
     // editMenu->addAction(redoAction);
     // editMenu->addSeparator();
+    editMenu->addAction(rotateLeftAction);
+    editMenu->addAction(rotateRightAction);
     editMenu->addAction(zoomInAction);
     editMenu->addAction(zoomOutAction);
     editMenu->addAction(fitToWindowAction);
@@ -461,6 +465,8 @@ void MainWindow::createToolbar()
     // toolbar->addAction(redoAction);
     // toolbar->addAction(deleteImageAction);
     toolbar->addWidget(deleteImageCheckBox);
+    toolbar->addAction(rotateLeftAction);
+    toolbar->addAction(rotateRightAction);
     toolbar->addAction(zoomInAction);
     toolbar->addAction(zoomOutAction);
     toolbar->addAction(fitToWindowAction);
@@ -482,6 +488,8 @@ void MainWindow::createConnections()
     QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::haveAdjusted, this, &MainWindow::setActiveSaveStatus);
     QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::haveAdjusted, this, &MainWindow::checkAnnotationBox);
 
+    QObject::connect(rotateLeftAction, &QAction::triggered, m_container->m_image_widget, &ImageWidget::rotateLeft);
+    QObject::connect(rotateRightAction, &QAction::triggered, m_container->m_image_widget, &ImageWidget::rotateRight);
     QObject::connect(zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
     QObject::connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
     QObject::connect(fitToWindowAction, &QAction::triggered, this, &MainWindow::fitToWindow);
