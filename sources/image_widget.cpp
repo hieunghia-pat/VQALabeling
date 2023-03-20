@@ -74,15 +74,15 @@ void ImageWidget::fitToContainer()
 }
 
 void ImageWidget::scaleImage(qfloat16 scaled)
-{
-    m_scaled_factor *= scaled;
-    
-    m_image_label->resize(m_image_label->pixmap().size()*m_scaled_factor);
+{   
+    m_image_label->resize(m_image_label->pixmap().size()*(1 + scaled));
 }
 
 void ImageWidget::resetScaling()
 {
-    m_scaled_factor = 1.;
+    qfloat16 image_w = m_image->width();
+    qfloat16 image_h = m_image->height();
+    m_image_label->resize(QSize(image_w, image_h));
 }
 
 void ImageWidget::rotateLeft() {
@@ -107,12 +107,12 @@ void ImageWidget::rotateRight() {
 
 void ImageWidget::zoomIn()
 {
-    scaleImage(1.25);
+    scaleImage(-0.01);
 }
 
 void ImageWidget::zoomOut()
 {
-    scaleImage(0.8);
+    scaleImage(0.01);
 }
 
 qfloat16 ImageWidget::scaleFactor()

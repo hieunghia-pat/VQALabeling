@@ -526,6 +526,8 @@ void MainWindow::enableImageFeatures(bool enabled)
 {
     previousImageAction->setEnabled(current_image_idx > 0);
     nextImageAction->setEnabled(current_image_idx < dataSize() - 1);
+    rotateLeftAction->setEnabled(enabled);
+    rotateRightAction->setEnabled(enabled);
     zoomInAction->setEnabled(enabled);
     zoomOutAction->setEnabled(enabled);
     fitToWindowAction->setEnabled(enabled);
