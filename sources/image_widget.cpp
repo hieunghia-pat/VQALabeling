@@ -75,60 +75,42 @@ void ImageWidget::fitToContainer()
 
 void ImageWidget::scaleImage(qfloat16 scaled)
 {   
-    m_image_label->resize(m_image_label->pixmap().size()*(1 + scaled));
+    m_image_label->resize(m_image_label->size()*(1 + scaled));
 }
 
 void ImageWidget::resetScaling()
 {
-    qfloat16 image_w = m_image->width();
-    qfloat16 image_h = m_image->height();
-    m_image_label->resize(QSize(image_w, image_h));
+    scaleImage(0);
 }
 
 void ImageWidget::rotateLeft() {
-    qfloat16 image_w = m_image_label->pixmap().width();
-    qfloat16 image_h = m_image_label->pixmap().height();
+    qfloat16 image_w = m_image_label->width();
+    qfloat16 image_h = m_image_label->height();
 
     QTransform rotate_left = QTransform().rotate(-90);
     m_image_label->setPixmap(m_image_label->pixmap().transformed(rotate_left));
-    m_image_label->resize(QSize(image_w, image_h));
-    scaleImage(1.);
+    m_image_label->resize(QSize(image_h, image_w));
+    scaleImage(0);
 }
 
 void ImageWidget::rotateRight() {
-    qfloat16 image_w = m_image_label->pixmap().width();
-    qfloat16 image_h = m_image_label->pixmap().height();
+    qfloat16 image_w = m_image_label->width();
+    qfloat16 image_h = m_image_label->height();
 
     QTransform rotate_right = QTransform().rotate(90);
     m_image_label->setPixmap(m_image_label->pixmap().transformed(rotate_right));
-    m_image_label->resize(QSize(image_w, image_h));
-    scaleImage(1.);
+    m_image_label->resize(QSize(image_h, image_w));
+    scaleImage(0);
 }
 
 void ImageWidget::zoomIn()
 {
-    scaleImage(-0.01);
+    scaleImage(0.1);
 }
 
 void ImageWidget::zoomOut()
 {
-    scaleImage(0.01);
-}
-
-qfloat16 ImageWidget::scaleFactor()
-{
-    return m_scaled_factor;
-}
-
-void ImageWidget::keyPressEvent(QKeyEvent* event)
-{
-    if (event->key() == Qt::Key_Left)
-        emit backImage();
-    
-    if (event->key() == Qt::Key_Right)
-        emit nextImage();
-
-    QScrollArea::keyPressEvent(event); // pass the event to the base class
+    scaleImage(-0.1);
 }
 
 ImageWidget::~ImageWidget()
