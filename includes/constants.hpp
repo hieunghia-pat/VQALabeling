@@ -16,4 +16,6 @@ const QMap<qint16, bool> check_state({
     QPair<qint16, bool>(Qt::Unchecked, false)
 });
 
+const QString ANNOTATION_FILE = "annotations.json";
+
 const QString None = "None";

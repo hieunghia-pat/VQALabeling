@@ -32,8 +32,10 @@
 #include <QStatusBar>
 #include <QCursor>
 #include <QShortcut>
+#include <QDir>
 
 #include <filesystem>
+#include <string>
 
 namespace fs = std::filesystem;
 
@@ -150,19 +152,11 @@ void MainWindow::openFolder()
 
 void MainWindow::saveJsonFile()
 {
-    if (save_json_dialog->isFirstOpen)
-    {
-        save_json_dialog->openDialog(open_folder_dialog->m_history);
-        if (save_json_dialog->selectedFiles().isEmpty())
-        {
-            qDebug() << "In MainWindow::saveJsonFile - Cannot specified any selected folder, maybe user did not choose one";
-            return;
-        }
-        save_json_dialog->setSelectedFile(save_json_dialog->selectedFiles().constLast());
-    }
-
     saveAnnotatationsForImage(current_image_idx);
-    saveJson(save_json_dialog->selectedFile());
+    fs::path current_dir(open_folder_dialog->selectedFiles()[0].toStdString());
+    std::string annotation_path = (current_dir / fs::path(ANNOTATION_FILE.toStdString()));
+    qDebug() << annotation_path;
+    saveJson(QString(annotation_path.c_str()));
     emit saveStatusEnabledChanged(false); // have saved changed things
 }
 
@@ -198,6 +192,7 @@ void MainWindow::loadJson(QString const &folder)
             object[ANNOTATIONS] = annotations;
             m_data->append(object);
         }
+        saveJsonFile();
     }
     else // load json data
     {
