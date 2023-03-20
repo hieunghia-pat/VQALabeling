@@ -30,17 +30,14 @@ public:
     ~AnnotationBox();
 
     // attributes
-    QLineEdit* m_questionLineEdit = nullptr;
-    QLineEdit* m_answerLineEdit = nullptr;
+    QLineEdit* m_captionLineEdit = nullptr;
 
     QPushButton* m_add_button = nullptr;
     QPushButton* m_del_button = nullptr;
 
-    QGroupBox* m_questionGroup = nullptr;
-    QGroupBox* m_answerGroup = nullptr;
+    QGroupBox* m_captionGroup = nullptr;
 
-    QVBoxLayout* m_questionLayout = nullptr;
-    QVBoxLayout* m_answerLayout = nullptr;
+    QVBoxLayout* m_captionLayout = nullptr;
 
     QVBoxLayout* m_qa_layout = nullptr;
     QHBoxLayout* m_button_layout = nullptr;
@@ -55,8 +52,7 @@ signals:
     void contentChanged();
 
 public slots:
-    void handleQuestionChanged(QString const& question);
-    void handleAnswerChanged(QString const& answer);
+    void handleCaptionChanged(QString const& question);
 
 private:
     qint16 m_index;

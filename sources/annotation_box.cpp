@@ -32,28 +32,18 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     setTitle(QString("Annotation %1: ").arg(m_index+1));
     setFont(*font);
 
-    // Question-answer line editor
-    m_questionGroup = new QGroupBox();
-    m_questionGroup->setTitle("Question: ");
+    // Caption line editor
+    m_captionGroup = new QGroupBox();
+    m_captionGroup->setTitle("Caption: ");
     
-    m_questionLineEdit = new QLineEdit();
-    m_current_annotation[QUESTION] = m_questionLineEdit->text();
+    m_captionLineEdit = new QLineEdit();
+    m_current_annotation[CAPTION] = m_captionLineEdit->text();
 
-    m_questionLayout = new QVBoxLayout(m_questionGroup);
-    m_questionLayout->addWidget(m_questionLineEdit);
-
-    m_answerGroup = new QGroupBox();
-    m_answerGroup->setTitle("Answer: ");
-    
-    m_answerLineEdit = new QLineEdit();
-    m_current_annotation[ANSWER] = m_answerLineEdit->text();
-    
-    m_answerLayout = new QVBoxLayout(m_answerGroup);
-    m_answerLayout->addWidget(m_answerLineEdit);
+    m_captionLayout = new QVBoxLayout(m_captionGroup);
+    m_captionLayout->addWidget(m_captionLineEdit);
 
     m_qa_layout = new QVBoxLayout();
-    m_qa_layout->addWidget(m_questionGroup);
-    m_qa_layout->addWidget(m_answerGroup);
+    m_qa_layout->addWidget(m_captionGroup);
 
     // manipulation button
     m_add_button = new QPushButton();
@@ -79,15 +69,13 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     QObject::connect(m_del_button, &QPushButton::clicked, [container, this]() {
         static_cast<AnnotationWidget*>(container)->deleteAnnotation(this->m_index);
     });
-    QObject::connect(m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleQuestionChanged);
-    QObject::connect(m_answerLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleAnswerChanged);
+    QObject::connect(m_captionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleCaptionChanged);
 }
 
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
-        QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
-        QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text())
+        QPair<QString, QJsonValue>(CAPTION, m_captionLineEdit->text())
     });
 }
 
@@ -95,11 +83,8 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
 {
     m_current_annotation = annotation;
 
-    QString question = annotation[QUESTION].toString();
-    m_questionLineEdit->setText(question);
-
-    QString answer = annotation[ANSWER].toString();
-    m_answerLineEdit->setText(answer);
+    QString caption = annotation[CAPTION].toString();
+    m_captionLineEdit->setText(caption);
 }
 
 qint16 AnnotationBox::index()
@@ -113,31 +98,20 @@ void AnnotationBox::setIndex(qint16 index)
     setTitle(QString("Annotation %1").arg(m_index+1));
 }
 
-void AnnotationBox::handleQuestionChanged(QString const& question)
+void AnnotationBox::handleCaptionChanged(QString const& caption)
 {
-    QString current_question = m_current_annotation[QUESTION].toString();
+    QString current_caption = m_current_annotation[CAPTION].toString();
 
-    if (question != current_question)
+    if (caption != current_caption)
     {
-        m_current_annotation[QUESTION] = question;
-        emit contentChanged();
-    }
-}
-
-void AnnotationBox::handleAnswerChanged(QString const& answer)
-{
-    QString current_answer = m_current_annotation[ANSWER].toString();
-
-    if (answer != current_answer)
-    {
-        m_current_annotation[ANSWER] = answer;
+        m_current_annotation[CAPTION] = caption;
         emit contentChanged();
     }
 }
 
 bool AnnotationBox::isEmpty()
 {
-    return (m_questionLineEdit->text().isEmpty() && m_answerLineEdit->text().isEmpty());
+    return (m_captionLineEdit->text().isEmpty());
 }
 
 AnnotationBox::~AnnotationBox()
