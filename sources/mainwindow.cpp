@@ -318,17 +318,11 @@ void MainWindow::previousImage()
 void MainWindow::zoomIn()
 {
     m_container->m_image_widget->zoomIn();
-
-    zoomOutAction->setEnabled(m_container->m_image_widget->scaleFactor() >= 0.5);
-    zoomInAction->setEnabled(m_container->m_image_widget->scaleFactor() <= 3.);
 }
 
 void MainWindow::zoomOut()
 {
     m_container->m_image_widget->zoomOut();
-
-    zoomOutAction->setEnabled(m_container->m_image_widget->scaleFactor() >= 0.5);
-    zoomInAction->setEnabled(m_container->m_image_widget->scaleFactor() <= 3.);
 }
 
 void MainWindow::resetScaling()
