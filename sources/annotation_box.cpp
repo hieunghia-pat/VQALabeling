@@ -51,9 +51,13 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_answerLayout = new QVBoxLayout(m_answerGroup);
     m_answerLayout->addWidget(m_answerLineEdit);
 
+    m_checkBox = new QCheckBox(this);
+    m_checkBox->setText("Anbiguous");
+
     m_qa_layout = new QVBoxLayout();
     m_qa_layout->addWidget(m_questionGroup);
     m_qa_layout->addWidget(m_answerGroup);
+    m_qa_layout->addWidget(m_checkBox);
 
     // manipulation button
     m_add_button = new QPushButton();
@@ -81,13 +85,15 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     });
     QObject::connect(m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleQuestionChanged);
     QObject::connect(m_answerLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleAnswerChanged);
+    QObject::connect(m_checkBox, &QCheckBox::stateChanged, this, &AnnotationBox::handleAmbiguousChanged);
 }
 
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
         QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
-        QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text())
+        QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text()),
+        QPair<QString, QJsonValue>(AMBIGUOUS, check_state[m_checkBox->checkState()])
     });
 }
 
@@ -115,22 +121,32 @@ void AnnotationBox::setIndex(qint16 index)
 
 void AnnotationBox::handleQuestionChanged(QString const& question)
 {
-    QString current_question = m_current_annotation[FOREIGN_QUESTION].toString();
+    QString current_question = m_current_annotation[QUESTION].toString();
 
     if (question != current_question)
     {
-        m_current_annotation[FOREIGN_QUESTION] = question;
+        m_current_annotation[QUESTION] = question;
         emit contentChanged();
     }
 }
 
 void AnnotationBox::handleAnswerChanged(QString const& answer)
 {
-    QString current_answer = m_current_annotation[FOREIGN_ANSWER].toString();
+    QString current_answer = m_current_annotation[ANSWER].toString();
 
     if (answer != current_answer)
     {
-        m_current_annotation[FOREIGN_ANSWER] = answer;
+        m_current_annotation[ANSWER] = answer;
+        emit contentChanged();
+    }
+}
+
+void AnnotationBox::handleAmbiguousChanged(int const& checkState) {
+    bool current_state = m_current_annotation[AMBIGUOUS].toBool();
+    bool new_state = (checkState == Qt::Checked) ? true : false;
+
+    if (current_state != new_state) {
+        m_current_annotation[AMBIGUOUS] = new_state;
         emit contentChanged();
     }
 }
