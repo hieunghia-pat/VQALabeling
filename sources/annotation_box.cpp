@@ -68,23 +68,9 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_button_layout->addWidget(m_del_button);
     m_button_layout->setAlignment(Qt::AlignRight);
 
-    // QA's type
-    m_qa_selection_group = new QGroupBox();
-    m_qa_selection_group->setTitle("QA's type");
-    m_qa_selection_box = new SelectionBox();
-    m_qa_selection_box->insertItems(0, QList<QString>{
-        "Text QA",
-        "Non-text QA"
-    });
-    m_qa_selection_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    m_current_annotation[QA_TYPE] = m_qa_selection_box->currentIndex();
-    m_qa_selection_layout = new QVBoxLayout(m_qa_selection_group);
-    m_qa_selection_layout->addWidget(m_qa_selection_box);
-
     // main layout
     m_layout = new QVBoxLayout(this);
     m_layout->addLayout(m_qa_layout);
-    m_layout->addWidget(m_qa_selection_group);
     m_layout->addLayout(m_button_layout);
 
     QObject::connect(m_add_button, &QPushButton::clicked, [container, this]() {
@@ -95,15 +81,13 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     });
     QObject::connect(m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleQuestionChanged);
     QObject::connect(m_answerLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleAnswerChanged);
-    QObject::connect(m_qa_selection_box, &SelectionBox::currentIndexChanged, this, &AnnotationBox::handleQATypeChanged);
 }
 
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
         QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
-        QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text()),
-        QPair<QString, QJsonValue>(QA_TYPE, m_qa_selection_box->currentIndex())
+        QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text())
     });
 }
 
@@ -116,9 +100,6 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
 
     QString answer = annotation[ANSWER].toString();
     m_answerLineEdit->setText(answer);
-
-    qint16 qa_type = m_current_annotation[QA_TYPE].toInt();
-    m_qa_selection_box->setCurrentIndex(qa_type);
 }
 
 qint16 AnnotationBox::index()
@@ -150,15 +131,6 @@ void AnnotationBox::handleAnswerChanged(QString const& answer)
     if (answer != current_answer)
     {
         m_current_annotation[FOREIGN_ANSWER] = answer;
-        emit contentChanged();
-    }
-}
-
-void AnnotationBox::handleQATypeChanged(qint16 const& type) {
-    qint16 current_qa_type = m_current_annotation[QA_TYPE].toInt();
-
-    if (type != current_qa_type) {
-        m_current_annotation[QA_TYPE] = type;
         emit contentChanged();
     }
 }

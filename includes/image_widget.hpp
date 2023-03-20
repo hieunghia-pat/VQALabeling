@@ -21,7 +21,6 @@ public:
     ImageWidget(QWidget *parent = nullptr);
 
     bool setImage(QDir const &image_dir);
-    qfloat16 scaleFactor();
 
     QSize getImageSize();
 
@@ -42,12 +41,8 @@ public slots:
 private:
     std::shared_ptr<QImage> m_image = nullptr;
     QLabel *m_image_label = nullptr;
-    qfloat16 m_scaled_factor = 1.;
 
     void scaleImage(qfloat16 scaled);
-
-protected:
-    void keyPressEvent(QKeyEvent *event) override;
 };
 
 #endif // IMAGE_WIDGET_HPP

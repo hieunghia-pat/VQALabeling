@@ -11,6 +11,7 @@
 #include <QCloseEvent>
 #include <QDir>
 #include <QKeyEvent>
+#include <QShortcut>
 
 #include <memory>
 
@@ -29,6 +30,10 @@ public:
     Container* container();
 
     qsizetype dataSize();
+
+    // shorcuts
+    QShortcut* nextImageShortcut = nullptr;
+    QShortcut* previousImageShortcut = nullptr;
 
     void closeEvent(QCloseEvent* event);
 
