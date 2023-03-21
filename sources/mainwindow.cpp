@@ -154,8 +154,7 @@ void MainWindow::saveJsonFile()
 {
     saveAnnotatationsForImage(current_image_idx);
     fs::path current_dir(open_folder_dialog->selectedFiles()[0].toStdString());
-    std::string annotation_path = (current_dir / fs::path(ANNOTATION_FILE.toStdString()));
-    qDebug() << annotation_path;
+    std::string annotation_path = (current_dir / fs::path(ANNOTATION_FILE.toStdString())).string();
     saveJson(QString(annotation_path.c_str()));
     emit saveStatusEnabledChanged(false); // have saved changed things
 }
