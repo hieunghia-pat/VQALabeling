@@ -52,7 +52,7 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_answerLayout->addWidget(m_answerLineEdit);
 
     m_checkBox = new QCheckBox(this);
-    m_checkBox->setText("Anbiguous");
+    m_checkBox->setText("Ambiguous");
 
     m_qa_layout = new QVBoxLayout();
     m_qa_layout->addWidget(m_questionGroup);
