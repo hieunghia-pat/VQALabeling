@@ -59,7 +59,7 @@ signals:
 public slots:
     void handleQuestionChanged(QString const& question);
     void handleAnswerChanged(QString const& answer);
-    void handleAmbiguousChanged(int const& checkState);
+    void handleAmbiguousChanged(bool const& isChecked);
 
 private:
     qint16 m_index;

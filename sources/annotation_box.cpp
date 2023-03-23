@@ -93,7 +93,7 @@ std::shared_ptr<QJsonObject> AnnotationBox::annotation()
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
         QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
         QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text()),
-        QPair<QString, QJsonValue>(AMBIGUOUS, check_state[m_checkBox->checkState()])
+        QPair<QString, QJsonValue>(AMBIGUOUS, m_checkBox->isChecked())
     });
 }
 
@@ -106,6 +106,9 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
 
     QString answer = annotation[ANSWER].toString();
     m_answerLineEdit->setText(answer);
+
+    bool stateChecked = annotation[AMBIGUOUS].toBool();
+    m_checkBox->setChecked(stateChecked);
 }
 
 qint16 AnnotationBox::index()
@@ -141,12 +144,11 @@ void AnnotationBox::handleAnswerChanged(QString const& answer)
     }
 }
 
-void AnnotationBox::handleAmbiguousChanged(int const& checkState) {
+void AnnotationBox::handleAmbiguousChanged(bool const& isChecked) {
     bool current_state = m_current_annotation[AMBIGUOUS].toBool();
-    bool new_state = (checkState == Qt::Checked) ? true : false;
 
-    if (current_state != new_state) {
-        m_current_annotation[AMBIGUOUS] = new_state;
+    if (current_state != isChecked) {
+        m_current_annotation[AMBIGUOUS] = isChecked;
         emit contentChanged();
     }
 }
