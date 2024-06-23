@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     resize(1024, 800);
+    setWindowTitle(QString("MDSS Annotation Tool"));
 
     qDebug() << "In MainWindow::MainWindow - Creating actions";
     createActions();
@@ -62,14 +63,8 @@ MainWindow::MainWindow(QWidget *parent)
                                   QPair<QString, bool>(DELETE, false)});
 
     m_default_annotation = QJsonObject({
-        QPair<QString, QString>(QUESTION, ""),
-        QPair<QString, QString>(ANSWER, ""),
-        // QPair<QString, bool>(TEXT_QA, true), // text is default
-        // QPair<QString, bool>(STATE_QA, false),
-        // QPair<QString, bool>(ACTION_QA, false),
-        // QPair<QString, qint16>(QUESTION_TYPE, 0),
-        // QPair<QString, qint16>(ANSWER_TYPE, 2) // sentence is default
-        QPair<QString, qint16>(QA_TYPE, 0) // text-QA is default
+        QPair<QString, QString>(CAPTION, ""),
+        QPair<QString, QString>(CAPTION_TYPE, "")
     });
     QJsonArray annotations;
     for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
@@ -128,7 +123,7 @@ qsizetype MainWindow::findFirstEmptyAnnotation()
         // if (!m_data->at(ith)[DELETE].toBool())
         //     return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
         for (auto annotation : annotations)
-            if ((annotation[FOREIGN_QUESTION].toString() != "") || (annotation[FOREIGN_ANSWER].toString() != ""))
+            if ((annotation[CAPTION].toString() != ""))
                 return ith + 1 == dataSize() ? ith : ith + 1; // return the first image which has not been annotated
     }
 
@@ -385,23 +380,9 @@ void MainWindow::createActions()
     quitAction = new QAction(QIcon(":/media/icons/quit.png"), "Quit", this);
     quitAction->setShortcut(QKeySequence::Quit);
 
-    // create actions for Edit Menu
-    // cutAction = new QAction(QIcon(":/icons/cut.png"), "Cut", this);
-    // cutAction->setShortcut(QKeySequence::Cut);
-    // copyAction = new QAction(QIcon(":/icons/copy.png"), "Copy", this);
-    // copyAction->setShortcut(QKeySequence::Copy);
-    // pasteAction = new QAction(QIcon(":/icons/paste.png"), "Paste", this);
-    // pasteAction->setShortcut(QKeySequence::Paste);
-    // undoAction = new QAction(QIcon(":/icons/undo.png"), "Undo", this);
-    // undoAction->setShortcut(QKeySequence::Undo);
-    // redoAction = new QAction(QIcon(":/icons/redo.png"), "Redo", this);
-    // redoAction->setShortcut(QKeySequence::Redo);
-
     nextImageAction = new QAction(QIcon(":/media/icons/next-image.png"), "Next Image", this);
     previousImageAction = new QAction(QIcon(":/media/icons/previous-image.png"), "Previous Image", this);
 
-    // deleteImageAction = new QAction(QIcon(":/media/icons/delete-image.png"), "Mark as delete", this);
-    // deleteImageAction->setCheckable(true);
     deleteImageCheckBox = new QCheckBox(this);
     deleteImageCheckBox->setText("Mark as delete");
     deleteImageCheckBox->setChecked(false);
@@ -432,13 +413,6 @@ void MainWindow::createFileMenu()
 void MainWindow::createEditMenu()
 {
     QMenu *editMenu = menuBar()->addMenu("&Edit");
-    // editMenu->addAction(cutAction);
-    // editMenu->addAction(copyAction);
-    // editMenu->addAction(pasteAction);
-    // editMenu->addSeparator();
-    // editMenu->addAction(undoAction);
-    // editMenu->addAction(redoAction);
-    // editMenu->addSeparator();
     editMenu->addAction(rotateLeftAction);
     editMenu->addAction(rotateRightAction);
     editMenu->addAction(zoomInAction);
@@ -463,12 +437,6 @@ void MainWindow::createToolbar()
     toolbar->addAction(nextImageAction);
 
     toolbar->addSeparator();
-    // toolbar->addAction(cutAction);
-    // toolbar->addAction(copyAction);
-    // toolbar->addAction(pasteAction);
-    // toolbar->addAction(undoAction);
-    // toolbar->addAction(redoAction);
-    // toolbar->addAction(deleteImageAction);
     toolbar->addWidget(deleteImageCheckBox);
     toolbar->addAction(rotateLeftAction);
     toolbar->addAction(rotateRightAction);

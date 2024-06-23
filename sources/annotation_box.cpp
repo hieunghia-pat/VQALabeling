@@ -1,6 +1,5 @@
 #include "annotation_box.hpp"
 #include "annotation_widget.hpp"
-#include "selection_box.hpp"
 #include "constants.hpp"
 
 #include <QLabel>
@@ -32,74 +31,72 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     setTitle(QString("Annotation %1: ").arg(m_index+1));
     setFont(*font);
 
-    // Question-answer line editor
-    m_questionGroup = new QGroupBox();
-    m_questionGroup->setTitle("Question: ");
+    // Caption line editor
+    m_captionGroup = new QGroupBox(this);
+    m_captionGroup->setTitle("Caption: ");
     
-    m_questionLineEdit = new QLineEdit();
-    m_current_annotation[QUESTION] = m_questionLineEdit->text();
+    m_captionLineEdit = new QLineEdit(m_captionGroup);
+    m_currentAnnotation[CAPTION] = m_captionLineEdit->text();
 
-    m_questionLayout = new QVBoxLayout(m_questionGroup);
-    m_questionLayout->addWidget(m_questionLineEdit);
+    m_captionComboBox = new QComboBox(m_captionGroup);
+    m_captionComboBox->addItem(QString("multi-sarcasm"));
+    m_captionComboBox->addItem(QString("image-sarcasm"));
+    m_captionComboBox->addItem(QString("text-sarcasm"));
+    m_captionComboBox->addItem(QString("Not-sarcasm"));
+    m_captionComboBox->addItem(QString("Image-not-sarcasm"));
+    m_captionComboBox->addItem(QString("Text-not-sarcasm"));
+    m_captionComboBox->setCurrentIndex(0);
 
-    m_answerGroup = new QGroupBox();
-    m_answerGroup->setTitle("Answer: ");
-    
-    m_answerLineEdit = new QLineEdit();
-    m_current_annotation[ANSWER] = m_answerLineEdit->text();
-    
-    m_answerLayout = new QVBoxLayout(m_answerGroup);
-    m_answerLayout->addWidget(m_answerLineEdit);
-
-    m_qa_layout = new QVBoxLayout();
-    m_qa_layout->addWidget(m_questionGroup);
-    m_qa_layout->addWidget(m_answerGroup);
+    m_captionLayout = new QVBoxLayout(m_captionGroup);
+    m_captionLayout->addWidget(m_captionLineEdit);
 
     // manipulation button
-    m_add_button = new QPushButton();
-    m_add_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_add_button->setIcon(QIcon(":/media/icons/add.png"));
-    m_del_button = new QPushButton();
-    m_del_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_del_button->setIcon(QIcon(":/media/icons/delete.png"));
+    m_addButton = new QPushButton();
+    m_addButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_addButton->setIcon(QIcon(":/media/icons/add.png"));
+    m_delButton = new QPushButton();
+    m_delButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_delButton->setIcon(QIcon(":/media/icons/delete.png"));
 
-    m_button_layout = new QHBoxLayout();
-    m_button_layout->addWidget(m_add_button);
-    m_button_layout->addWidget(m_del_button);
-    m_button_layout->setAlignment(Qt::AlignRight);
+    m_buttonLayout = new QHBoxLayout();
+    m_buttonLayout->addWidget(m_addButton);
+    m_buttonLayout->addWidget(m_delButton);
+    m_buttonLayout->setAlignment(Qt::AlignRight);
 
     // main layout
     m_layout = new QVBoxLayout(this);
-    m_layout->addLayout(m_qa_layout);
-    m_layout->addLayout(m_button_layout);
+    // m_layout->addLayout(m_captionLayout);
+    m_layout->addWidget(m_captionGroup);
+    m_layout->addWidget(m_captionComboBox);
+    m_layout->addLayout(m_buttonLayout);
 
-    QObject::connect(m_add_button, &QPushButton::clicked, [container, this]() {
+    QObject::connect(m_addButton, &QPushButton::clicked, [container, this]() {
         static_cast<AnnotationWidget*>(container)->addAnnotation(this->m_index);
     });
-    QObject::connect(m_del_button, &QPushButton::clicked, [container, this]() {
+    QObject::connect(m_delButton, &QPushButton::clicked, [container, this]() {
         static_cast<AnnotationWidget*>(container)->deleteAnnotation(this->m_index);
     });
-    QObject::connect(m_questionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleQuestionChanged);
-    QObject::connect(m_answerLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleAnswerChanged);
+    QObject::connect(m_captionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleCaptionChanged);
+    QObject::connect(m_captionComboBox, &QComboBox::currentTextChanged, this, &AnnotationBox::handleCaptionTypeChanged);
 }
 
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
-        QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
-        QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text())
+        QPair<QString, QJsonValue>(CAPTION, m_captionLineEdit->text()),
+        QPair<QString, QJsonValue>(CAPTION_TYPE, m_captionComboBox->currentText())
     });
 }
 
 void AnnotationBox::setAnnotation(QJsonObject const& annotation)
 {
-    m_current_annotation = annotation;
+    m_currentAnnotation = annotation;
 
-    QString question = annotation[QUESTION].toString();
-    m_questionLineEdit->setText(question);
+    QString caption = annotation[CAPTION].toString();
+    m_captionLineEdit->setText(caption);
 
-    QString answer = annotation[ANSWER].toString();
-    m_answerLineEdit->setText(answer);
+    QString captionType = annotation[CAPTION_TYPE].toString();
+    m_captionComboBox->setCurrentText(captionType);
 }
 
 qint16 AnnotationBox::index()
@@ -113,31 +110,31 @@ void AnnotationBox::setIndex(qint16 index)
     setTitle(QString("Annotation %1").arg(m_index+1));
 }
 
-void AnnotationBox::handleQuestionChanged(QString const& question)
+void AnnotationBox::handleCaptionChanged(QString const& caption)
 {
-    QString current_question = m_current_annotation[FOREIGN_QUESTION].toString();
+    QString const& currentCaption = m_currentAnnotation[CAPTION].toString();
 
-    if (question != current_question)
+    if (caption != currentCaption)
     {
-        m_current_annotation[FOREIGN_QUESTION] = question;
+        m_currentAnnotation[CAPTION] = caption;
         emit contentChanged();
     }
 }
 
-void AnnotationBox::handleAnswerChanged(QString const& answer)
+void AnnotationBox::handleCaptionTypeChanged(QString const& captionType)
 {
-    QString current_answer = m_current_annotation[FOREIGN_ANSWER].toString();
+    QString currentCaptionType = m_currentAnnotation[CAPTION_TYPE].toString();
 
-    if (answer != current_answer)
+    if (captionType != currentCaptionType)
     {
-        m_current_annotation[FOREIGN_ANSWER] = answer;
+        m_currentAnnotation[CAPTION_TYPE] = captionType;
         emit contentChanged();
     }
 }
 
 bool AnnotationBox::isEmpty()
 {
-    return (m_questionLineEdit->text().isEmpty() && m_answerLineEdit->text().isEmpty());
+    return (m_captionLineEdit->text().isEmpty());
 }
 
 AnnotationBox::~AnnotationBox()

@@ -11,7 +11,6 @@
 #include <QKeyEvent>
 
 #include <memory>
-#include <iostream>
 
 AnnotationWidget::AnnotationWidget(QWidget* parent)
     : QScrollArea(parent)

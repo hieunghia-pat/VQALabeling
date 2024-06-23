@@ -12,8 +12,6 @@
 #include <QDateTime>
 
 #include <filesystem>
-#include <exception>
-#include <iostream>
 
 namespace fs = std::filesystem;
 

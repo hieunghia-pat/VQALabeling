@@ -35,7 +35,7 @@ public:
     QShortcut* nextImageShortcut = nullptr;
     QShortcut* previousImageShortcut = nullptr;
 
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
     ~MainWindow();
 

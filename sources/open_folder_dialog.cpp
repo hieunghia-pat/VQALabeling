@@ -22,19 +22,6 @@ void OpenFolderDialog::initializeDialog()
 {
     setWindowTitle("Open folder");
     setFileMode(QFileDialog::Directory);
-
-    // QList<QByteArray> imageMimeTypes = QImageReader::supportedMimeTypes();
-
-    // QList<QString> typeFilters;
-
-    // for (QByteArray const& mimeType: imageMimeTypes)
-    // {
-    //     typeFilters << mimeType;
-    // }
-
-    // typeFilters.sort();
-    // setMimeTypeFilters(typeFilters);
-    // selectMimeTypeFilter("image/jpeg");
     setAcceptMode(QFileDialog::AcceptOpen);
 }
 
