@@ -39,13 +39,14 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_currentAnnotation[CAPTION] = m_captionLineEdit->text();
 
     m_captionComboBox = new QComboBox(m_captionGroup);
+    m_captionComboBox->addItem(QString("null"));
     m_captionComboBox->addItem(QString("multi-sarcasm"));
     m_captionComboBox->addItem(QString("image-sarcasm"));
     m_captionComboBox->addItem(QString("text-sarcasm"));
     m_captionComboBox->addItem(QString("Not-sarcasm"));
     m_captionComboBox->addItem(QString("Image-not-sarcasm"));
     m_captionComboBox->addItem(QString("Text-not-sarcasm"));
-    m_captionComboBox->setCurrentIndex(0);
+    m_captionComboBox->setCurrentText("null");
 
     m_captionLayout = new QVBoxLayout(m_captionGroup);
     m_captionLayout->addWidget(m_captionLineEdit);
@@ -134,7 +135,7 @@ void AnnotationBox::handleCaptionTypeChanged(QString const& captionType)
 
 bool AnnotationBox::isEmpty()
 {
-    return (m_captionLineEdit->text().isEmpty());
+    return (m_captionComboBox->currentText() != NONE);
 }
 
 AnnotationBox::~AnnotationBox()

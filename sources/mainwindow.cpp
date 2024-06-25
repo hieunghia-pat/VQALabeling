@@ -116,15 +116,15 @@ MainWindow::~MainWindow()
 
 qsizetype MainWindow::findFirstEmptyAnnotation()
 {
-    for (qsizetype ith = dataSize() - 1; ith >= 0; ith--)
+    for (qsizetype ith = 0; ith < dataSize(); ith++)
     {
         QJsonObject sample = m_data->at(ith).toObject();
         QJsonArray annotations = sample[ANNOTATIONS].toArray();
-        // if (!m_data->at(ith)[DELETE].toBool())
-        //     return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
         for (auto annotation : annotations)
-            if ((annotation[CAPTION].toString() != ""))
+        {
+            if ((annotation[CAPTION_TYPE].toString() == "null"))
                 return ith + 1 == dataSize() ? ith : ith + 1; // return the first image which has not been annotated
+        }
     }
 
     return 0; // else return the first image

@@ -2,6 +2,7 @@
 #include <QMap>
 #include <QPair>
 
+const QString NONE = "null";
 const QString CAPTION = "caption";
 const QString CAPTION_TYPE = "caption-type";
 
@@ -24,4 +25,3 @@ const QMap<qint16, QString> check_state({
     QPair<qint16, QString>(false, "false")
 });
 
-const QString None = "None";
