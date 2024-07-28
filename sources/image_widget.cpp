@@ -1,5 +1,4 @@
 #include "image_widget.hpp"
-#include "exception.hpp"
 
 #include <QFloat16>
 #include <QLabel>
