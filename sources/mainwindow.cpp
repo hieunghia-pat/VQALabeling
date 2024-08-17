@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_default_annotation = QJsonObject({
         QPair<QString, QString>(CAPTION, ""),
-        QPair<QString, QString>(CAPTION_TYPE, "")
+        QPair<QString, QString>(LABEL[true], "")
     });
     QJsonArray annotations;
     for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
@@ -122,12 +122,13 @@ qsizetype MainWindow::findFirstEmptyAnnotation()
         QJsonArray annotations = sample[ANNOTATIONS].toArray();
         for (auto annotation : annotations)
         {
-            if ((annotation[CAPTION_TYPE].toString() == "null"))
-                return ith + 1 == dataSize() ? ith : ith + 1; // return the first image which has not been annotated
+            QString const& caption = annotation[CAPTION].toString();
+            if (caption == "")
+                return ith + 1 == dataSize() ? ith : ith + 1; // return the first sample which has not been annotated
         }
     }
 
-    return 0; // else return the first image
+    return 0; // else return the first sample
 }
 
 void MainWindow::openFolder()
@@ -140,8 +141,8 @@ void MainWindow::openFolder()
         loadJson(open_folder_dialog->selectedFiles().constLast());
 
         // find the first image not annotated
-        current_image_idx = findFirstEmptyAnnotation();
-        loadData(current_image_idx);
+        current_sample_idx = findFirstEmptyAnnotation();
+        loadData(current_sample_idx);
         enableImageFeatures(true);
     }
 
@@ -161,7 +162,7 @@ void MainWindow::saveJsonFile()
         save_json_dialog->setSelectedFile(save_json_dialog->selectedFiles().constLast());
     }
 
-    saveAnnotatationsForImage(current_image_idx);
+    saveAnnotatationsForImage(current_sample_idx);
     saveJson(save_json_dialog->selectedFile());
     emit saveStatusEnabledChanged(false); // have saved changed things
 }
@@ -173,50 +174,21 @@ void MainWindow::loadJson(QString const &folder)
     json_filter << "*.json";
     QList<QFileInfo> json_files = m_directory.entryInfoList(json_filter);
 
-    if (json_files.size() == 0) // no annotation file
+    qDebug() << QString("In MainWindow::loadJson - Found %1, loading this json file").arg(json_files.constLast().absoluteFilePath()).toStdString().c_str();
+    emit createdNovelFile(false);
+    save_json_dialog->toggleFileSelected(false);
+    QFile file(json_files.constLast().absoluteFilePath());
+    if (!file.open(QIODevice::ReadOnly))
     {
-        qDebug() << QString("In MainWindow::loadJson - There is no json file in %1, will create new one").arg(m_directory.path()).toStdString().c_str();
-        emit createdNovelFile(true);
-        QList<QString> image_filters;
-        image_filters << "*.jpeg"
-                      << "*.png"
-                      << "*.jpg";
-
-        QList<QFileInfo> image_files = m_directory.entryInfoList(image_filters);
-
-        m_data = std::make_shared<QJsonArray>();
-        for (QFileInfo const &image_file : image_files)
-        {
-            QJsonObject object;
-            object[FILENAME] = image_file.fileName();
-            object[FILEPATH] = image_file.dir().dirName();
-            object[DELETE] = true;
-            QJsonArray annotations;
-            // create annotations
-            for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
-                annotations.append(m_default_annotation);
-            object[ANNOTATIONS] = annotations;
-            m_data->append(object);
-        }
+        QMessageBox::warning(this, "Open workspace error!", QString("Error while opening %1").arg(json_files.constLast().path()));
     }
-    else // load json data
-    {
-        qDebug() << QString("In MainWindow::loadJson - Found %1, loading this json file").arg(json_files.constLast().absoluteFilePath()).toStdString().c_str();
-        emit createdNovelFile(false);
-        save_json_dialog->toggleFileSelected(false);
-        QFile file(json_files.constLast().absoluteFilePath());
-        if (!file.open(QIODevice::ReadOnly))
-        {
-            QMessageBox::warning(this, "Open workspace error!", QString("Error while opening %1").arg(json_files.constLast().path()));
-        }
 
-        save_json_dialog->setSelectedFile(json_files.constLast().absoluteFilePath());
+    save_json_dialog->setSelectedFile(json_files.constLast().absoluteFilePath());
 
-        QTextStream filestream(&file);
-        QByteArray content = filestream.readAll().toUtf8();
-        m_data = std::make_shared<QJsonArray>(QJsonDocument::fromJson(content).array());
-        file.close();
-    }
+    QTextStream filestream(&file);
+    QByteArray content = filestream.readAll().toUtf8();
+    m_data = std::make_shared<QJsonArray>(QJsonDocument::fromJson(content).array());
+    file.close();
 
     deleteImageCheckBox->setEnabled(true);
 }
@@ -269,7 +241,7 @@ void MainWindow::loadData(qint16 image_idx)
 
     setCursor(QCursor(Qt::WaitCursor));
 
-    m_container->m_image_widget->setImage(path);
+    m_container->m_image_widget_top->setImage(path);
     m_container->m_annotation_widget->setData(data[ANNOTATIONS].toArray());
 
     deleteImageCheckBox->setChecked(data[DELETE].toBool());
@@ -278,10 +250,7 @@ void MainWindow::loadData(qint16 image_idx)
     {
         previousImageAction->setEnabled(image_idx > 0);
         nextImageAction->setEnabled(image_idx < dataSize() - 1);
-        emit imageChanged(m_data->at(image_idx).toObject()[FILENAME].toString() + " - " +
-                          QString("[%1x%2]")
-                              .arg(m_container->m_image_widget->getImageSize().width())
-                              .arg(m_container->m_image_widget->getImageSize().height()));
+        emit imageChanged(m_data->at(image_idx).toObject()[FILENAME].toString());
     }
     m_container->m_annotation_widget->setEnabled(enableAnnotationWidget);
 
@@ -312,17 +281,20 @@ void MainWindow::previousImage()
 
 void MainWindow::zoomIn()
 {
-    m_container->m_image_widget->zoomIn();
+    m_container->m_image_widget_top->zoomIn();
+    m_container->m_image_widget_bottom->zoomIn();
 }
 
 void MainWindow::zoomOut()
 {
-    m_container->m_image_widget->zoomOut();
+    m_container->m_image_widget_top->zoomOut();
+    m_container->m_image_widget_bottom->zoomOut();
 }
 
 void MainWindow::resetScaling()
 {
-    m_container->m_image_widget->resetScaling();
+    m_container->m_image_widget_top->resetScaling();
+    m_container->m_image_widget_bottom->resetScaling();
 }
 
 void MainWindow::saveAnnotatationsForImage(qsizetype image_idx)
@@ -352,7 +324,8 @@ void MainWindow::updateImageDeletingStatus(int checkState)
 
 void MainWindow::fitToWindow()
 {
-    m_container->m_image_widget->fitToContainer();
+    m_container->m_image_widget_top->fitToContainer();
+    m_container->m_image_widget_bottom->fitToContainer();
 }
 
 void MainWindow::onQuitAction()

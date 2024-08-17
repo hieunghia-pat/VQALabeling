@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QDir>
 #include <QPushButton>
 
@@ -18,10 +19,14 @@ public:
     ~Container();
 
     // attributes
-    ImageWidget* m_image_widget = nullptr;
+    ImageWidget* m_image_widget_top = nullptr;
+    ImageWidget* m_image_widget_bottom = nullptr;
     AnnotationWidget* m_annotation_widget = nullptr;
-    
-    QHBoxLayout* m_layout = nullptr;
+
+    // Layout for the two Image Widget
+    QVBoxLayout* m_vlayout = nullptr;
+    // Layout for the whole container
+    QHBoxLayout* m_hlayout = nullptr;
 };
 
 #endif // CONTAINER_HPP

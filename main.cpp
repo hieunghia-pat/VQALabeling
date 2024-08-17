@@ -1,5 +1,4 @@
 #include "mainwindow.hpp"
-#include "exception.hpp"
 
 #include <QApplication>
 #include <QTableView>

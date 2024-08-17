@@ -39,14 +39,9 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     m_currentAnnotation[CAPTION] = m_captionLineEdit->text();
 
     m_captionComboBox = new QComboBox(m_captionGroup);
-    m_captionComboBox->addItem(QString("null"));
-    m_captionComboBox->addItem(QString("multi-sarcasm"));
-    m_captionComboBox->addItem(QString("image-sarcasm"));
-    m_captionComboBox->addItem(QString("text-sarcasm"));
-    m_captionComboBox->addItem(QString("Not-sarcasm"));
-    m_captionComboBox->addItem(QString("Image-not-sarcasm"));
-    m_captionComboBox->addItem(QString("Text-not-sarcasm"));
-    m_captionComboBox->setCurrentText("null");
+    m_captionComboBox->addItem(label2text[true]);
+    m_captionComboBox->addItem(label2text[false]);
+    m_captionComboBox->setCurrentText(label2text[true]);
 
     m_captionLayout = new QVBoxLayout(m_captionGroup);
     m_captionLayout->addWidget(m_captionLineEdit);
@@ -78,14 +73,17 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
         static_cast<AnnotationWidget*>(container)->deleteAnnotation(this->m_index);
     });
     QObject::connect(m_captionLineEdit, &QLineEdit::textChanged, this, &AnnotationBox::handleCaptionChanged);
-    QObject::connect(m_captionComboBox, &QComboBox::currentTextChanged, this, &AnnotationBox::handleCaptionTypeChanged);
+    QObject::connect(m_captionComboBox, &QComboBox::currentTextChanged, this, &AnnotationBox::handleLabelChanged);
 }
 
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
+    QString caption = m_captionLineEdit->text();
+    QString labelText = m_captionComboBox->currentText();
+    bool label = text2label[labelText];
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
-        QPair<QString, QJsonValue>(CAPTION, m_captionLineEdit->text()),
-        QPair<QString, QJsonValue>(CAPTION_TYPE, m_captionComboBox->currentText())
+        QPair<QString, QJsonValue>(CAPTION, caption),
+        QPair<QString, QJsonValue>(LABEL, label)
     });
 }
 
@@ -96,8 +94,8 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
     QString caption = annotation[CAPTION].toString();
     m_captionLineEdit->setText(caption);
 
-    QString captionType = annotation[CAPTION_TYPE].toString();
-    m_captionComboBox->setCurrentText(captionType);
+    QString label = label2text[annotation[LABEL].toInt()];
+    m_captionComboBox->setCurrentText(label);
 }
 
 qint16 AnnotationBox::index()
@@ -122,13 +120,14 @@ void AnnotationBox::handleCaptionChanged(QString const& caption)
     }
 }
 
-void AnnotationBox::handleCaptionTypeChanged(QString const& captionType)
+void AnnotationBox::handleLabelChanged(QString const& label)
 {
-    QString currentCaptionType = m_currentAnnotation[CAPTION_TYPE].toString();
+    bool currentLabel = m_currentAnnotation[LABEL].toBool();
+    bool newLabel = text2label[label];
 
-    if (captionType != currentCaptionType)
+    if (currentLabel != newLabel)
     {
-        m_currentAnnotation[CAPTION_TYPE] = captionType;
+        m_currentAnnotation[LABEL] = newLabel;
         emit contentChanged();
     }
 }

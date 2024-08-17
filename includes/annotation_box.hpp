@@ -51,7 +51,7 @@ signals:
 
 public slots:
     void handleCaptionChanged(QString const& caption);
-    void handleCaptionTypeChanged(QString const& captionType);
+    void handleLabelChanged(QString const& label);
 
 private:
     qint16 m_index;
