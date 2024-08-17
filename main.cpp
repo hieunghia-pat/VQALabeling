@@ -1,5 +1,4 @@
 #include "mainwindow.hpp"
-#include "exception.hpp"
 
 #include <QApplication>
 #include <QTableView>
@@ -12,8 +11,6 @@
 #include <QDateTime>
 
 #include <filesystem>
-#include <exception>
-#include <iostream>
 
 namespace fs = std::filesystem;
 
