@@ -31,8 +31,8 @@ public:
 signals:
     void haveAdjusted();
     void changedNumberOfAnnotations();
-    void nextImage();
-    void backImage();
+    void nextAnnotation();
+    void previousAnnotation();
 
 public slots:
     void addAnnotation(qsizetype ith);

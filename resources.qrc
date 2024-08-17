@@ -4,8 +4,6 @@
         <file>media/icons/copy.png</file>
         <file>media/icons/cut.png</file>
         <file>media/icons/fit-to-screen.png</file>
-        <file>media/icons/logo-uit.ico</file>
-        <file>media/icons/logo-uit.png</file>
         <file>media/icons/next-image.png</file>
         <file>media/icons/delete-image.png</file>
         <file>media/icons/open-image.png</file>
@@ -23,5 +21,6 @@
         <file>media/icons/delete.png</file>
         <file>media/images/no-image.jpg</file>
         <file>media/images/warning.png</file>
+        <file>media/icons/udsc-logo.png</file>
     </qresource>
 </RCC>

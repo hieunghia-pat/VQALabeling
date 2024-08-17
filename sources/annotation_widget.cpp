@@ -11,7 +11,6 @@
 #include <QKeyEvent>
 
 #include <memory>
-#include <iostream>
 
 AnnotationWidget::AnnotationWidget(QWidget* parent)
     : QScrollArea(parent)
@@ -125,10 +124,10 @@ void AnnotationWidget::reassignIndex()
 void AnnotationWidget::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Left)
-        emit backImage();
+        emit previousAnnotation();
     
     if (event->key() == Qt::Key_Right)
-        emit nextImage();
+        emit nextAnnotation();
 
     QScrollArea::keyPressEvent(event); // pass the event to the base class
 }

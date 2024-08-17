@@ -3,11 +3,11 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = VQALabeling
+TARGET = MMDSLabeling
 INCLUDEPATH += includes
 QT += widgets
-RC_ICONS = media/icons/logo-uit.ico
-ICON = media/icons/logo-uit.ico
+RC_ICONS = media/icons/udsc-logo.png
+ICON = media/icons/udsc-logo.png
 CONFIG += c++17
 
 # You can make your code fail to compile if you use deprecated APIs.

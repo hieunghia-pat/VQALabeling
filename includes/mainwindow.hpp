@@ -35,7 +35,7 @@ public:
     QShortcut* nextImageShortcut = nullptr;
     QShortcut* previousImageShortcut = nullptr;
 
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
     ~MainWindow();
 
@@ -74,7 +74,7 @@ private:
     QAction* openFolderAction = nullptr;
     QAction* saveJsonAction = nullptr;
     QAction* quitAction = nullptr;
-    qsizetype current_image_idx = 0;
+    qsizetype current_sample_idx = 0;
 
     // Edit Menu actions
     // QAction* cutAction;

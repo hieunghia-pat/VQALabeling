@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     resize(1024, 800);
+    setWindowTitle(QString("MDSS Annotation Tool"));
 
     qDebug() << "In MainWindow::MainWindow - Creating actions";
     createActions();
@@ -62,14 +63,8 @@ MainWindow::MainWindow(QWidget *parent)
                                   QPair<QString, bool>(DELETE, false)});
 
     m_default_annotation = QJsonObject({
-        QPair<QString, QString>(QUESTION, ""),
-        QPair<QString, QString>(ANSWER, ""),
-        // QPair<QString, bool>(TEXT_QA, true), // text is default
-        // QPair<QString, bool>(STATE_QA, false),
-        // QPair<QString, bool>(ACTION_QA, false),
-        // QPair<QString, qint16>(QUESTION_TYPE, 0),
-        // QPair<QString, qint16>(ANSWER_TYPE, 2) // sentence is default
-        QPair<QString, qint16>(QA_TYPE, 0) // text-QA is default
+        QPair<QString, QString>(CAPTION, ""),
+        QPair<QString, QString>(LABEL[true], "")
     });
     QJsonArray annotations;
     for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
@@ -121,18 +116,19 @@ MainWindow::~MainWindow()
 
 qsizetype MainWindow::findFirstEmptyAnnotation()
 {
-    for (qsizetype ith = dataSize() - 1; ith >= 0; ith--)
+    for (qsizetype ith = 0; ith < dataSize(); ith++)
     {
         QJsonObject sample = m_data->at(ith).toObject();
         QJsonArray annotations = sample[ANNOTATIONS].toArray();
-        // if (!m_data->at(ith)[DELETE].toBool())
-        //     return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
         for (auto annotation : annotations)
-            if ((annotation[FOREIGN_QUESTION].toString() != "") || (annotation[FOREIGN_ANSWER].toString() != ""))
-                return ith + 1 == dataSize() ? ith : ith + 1; // return the first image which has not been annotated
+        {
+            QString const& caption = annotation[CAPTION].toString();
+            if (caption == "")
+                return ith + 1 == dataSize() ? ith : ith + 1; // return the first sample which has not been annotated
+        }
     }
 
-    return 0; // else return the first image
+    return 0; // else return the first sample
 }
 
 void MainWindow::openFolder()
@@ -145,8 +141,8 @@ void MainWindow::openFolder()
         loadJson(open_folder_dialog->selectedFiles().constLast());
 
         // find the first image not annotated
-        current_image_idx = findFirstEmptyAnnotation();
-        loadData(current_image_idx);
+        current_sample_idx = findFirstEmptyAnnotation();
+        loadData(current_sample_idx);
         enableImageFeatures(true);
     }
 
@@ -166,7 +162,7 @@ void MainWindow::saveJsonFile()
         save_json_dialog->setSelectedFile(save_json_dialog->selectedFiles().constLast());
     }
 
-    saveAnnotatationsForImage(current_image_idx);
+    saveAnnotatationsForImage(current_sample_idx);
     saveJson(save_json_dialog->selectedFile());
     emit saveStatusEnabledChanged(false); // have saved changed things
 }
@@ -178,50 +174,21 @@ void MainWindow::loadJson(QString const &folder)
     json_filter << "*.json";
     QList<QFileInfo> json_files = m_directory.entryInfoList(json_filter);
 
-    if (json_files.size() == 0) // no annotation file
+    qDebug() << QString("In MainWindow::loadJson - Found %1, loading this json file").arg(json_files.constLast().absoluteFilePath()).toStdString().c_str();
+    emit createdNovelFile(false);
+    save_json_dialog->toggleFileSelected(false);
+    QFile file(json_files.constLast().absoluteFilePath());
+    if (!file.open(QIODevice::ReadOnly))
     {
-        qDebug() << QString("In MainWindow::loadJson - There is no json file in %1, will create new one").arg(m_directory.path()).toStdString().c_str();
-        emit createdNovelFile(true);
-        QList<QString> image_filters;
-        image_filters << "*.jpeg"
-                      << "*.png"
-                      << "*.jpg";
-
-        QList<QFileInfo> image_files = m_directory.entryInfoList(image_filters);
-
-        m_data = std::make_shared<QJsonArray>();
-        for (QFileInfo const &image_file : image_files)
-        {
-            QJsonObject object;
-            object[FILENAME] = image_file.fileName();
-            object[FILEPATH] = image_file.dir().dirName();
-            object[DELETE] = true;
-            QJsonArray annotations;
-            // create annotations
-            for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
-                annotations.append(m_default_annotation);
-            object[ANNOTATIONS] = annotations;
-            m_data->append(object);
-        }
+        QMessageBox::warning(this, "Open workspace error!", QString("Error while opening %1").arg(json_files.constLast().path()));
     }
-    else // load json data
-    {
-        qDebug() << QString("In MainWindow::loadJson - Found %1, loading this json file").arg(json_files.constLast().absoluteFilePath()).toStdString().c_str();
-        emit createdNovelFile(false);
-        save_json_dialog->toggleFileSelected(false);
-        QFile file(json_files.constLast().absoluteFilePath());
-        if (!file.open(QIODevice::ReadOnly))
-        {
-            QMessageBox::warning(this, "Open workspace error!", QString("Error while opening %1").arg(json_files.constLast().path()));
-        }
 
-        save_json_dialog->setSelectedFile(json_files.constLast().absoluteFilePath());
+    save_json_dialog->setSelectedFile(json_files.constLast().absoluteFilePath());
 
-        QTextStream filestream(&file);
-        QByteArray content = filestream.readAll().toUtf8();
-        m_data = std::make_shared<QJsonArray>(QJsonDocument::fromJson(content).array());
-        file.close();
-    }
+    QTextStream filestream(&file);
+    QByteArray content = filestream.readAll().toUtf8();
+    m_data = std::make_shared<QJsonArray>(QJsonDocument::fromJson(content).array());
+    file.close();
 
     deleteImageCheckBox->setEnabled(true);
 }
@@ -274,7 +241,7 @@ void MainWindow::loadData(qint16 image_idx)
 
     setCursor(QCursor(Qt::WaitCursor));
 
-    m_container->m_image_widget->setImage(path);
+    m_container->m_image_widget_top->setImage(path);
     m_container->m_annotation_widget->setData(data[ANNOTATIONS].toArray());
 
     deleteImageCheckBox->setChecked(data[DELETE].toBool());
@@ -283,10 +250,7 @@ void MainWindow::loadData(qint16 image_idx)
     {
         previousImageAction->setEnabled(image_idx > 0);
         nextImageAction->setEnabled(image_idx < dataSize() - 1);
-        emit imageChanged(m_data->at(image_idx).toObject()[FILENAME].toString() + " - " +
-                          QString("[%1x%2]")
-                              .arg(m_container->m_image_widget->getImageSize().width())
-                              .arg(m_container->m_image_widget->getImageSize().height()));
+        emit imageChanged(m_data->at(image_idx).toObject()[FILENAME].toString());
     }
     m_container->m_annotation_widget->setEnabled(enableAnnotationWidget);
 
@@ -317,17 +281,20 @@ void MainWindow::previousImage()
 
 void MainWindow::zoomIn()
 {
-    m_container->m_image_widget->zoomIn();
+    m_container->m_image_widget_top->zoomIn();
+    m_container->m_image_widget_bottom->zoomIn();
 }
 
 void MainWindow::zoomOut()
 {
-    m_container->m_image_widget->zoomOut();
+    m_container->m_image_widget_top->zoomOut();
+    m_container->m_image_widget_bottom->zoomOut();
 }
 
 void MainWindow::resetScaling()
 {
-    m_container->m_image_widget->resetScaling();
+    m_container->m_image_widget_top->resetScaling();
+    m_container->m_image_widget_bottom->resetScaling();
 }
 
 void MainWindow::saveAnnotatationsForImage(qsizetype image_idx)
@@ -357,7 +324,8 @@ void MainWindow::updateImageDeletingStatus(int checkState)
 
 void MainWindow::fitToWindow()
 {
-    m_container->m_image_widget->fitToContainer();
+    m_container->m_image_widget_top->fitToContainer();
+    m_container->m_image_widget_bottom->fitToContainer();
 }
 
 void MainWindow::onQuitAction()
@@ -385,23 +353,9 @@ void MainWindow::createActions()
     quitAction = new QAction(QIcon(":/media/icons/quit.png"), "Quit", this);
     quitAction->setShortcut(QKeySequence::Quit);
 
-    // create actions for Edit Menu
-    // cutAction = new QAction(QIcon(":/icons/cut.png"), "Cut", this);
-    // cutAction->setShortcut(QKeySequence::Cut);
-    // copyAction = new QAction(QIcon(":/icons/copy.png"), "Copy", this);
-    // copyAction->setShortcut(QKeySequence::Copy);
-    // pasteAction = new QAction(QIcon(":/icons/paste.png"), "Paste", this);
-    // pasteAction->setShortcut(QKeySequence::Paste);
-    // undoAction = new QAction(QIcon(":/icons/undo.png"), "Undo", this);
-    // undoAction->setShortcut(QKeySequence::Undo);
-    // redoAction = new QAction(QIcon(":/icons/redo.png"), "Redo", this);
-    // redoAction->setShortcut(QKeySequence::Redo);
-
     nextImageAction = new QAction(QIcon(":/media/icons/next-image.png"), "Next Image", this);
     previousImageAction = new QAction(QIcon(":/media/icons/previous-image.png"), "Previous Image", this);
 
-    // deleteImageAction = new QAction(QIcon(":/media/icons/delete-image.png"), "Mark as delete", this);
-    // deleteImageAction->setCheckable(true);
     deleteImageCheckBox = new QCheckBox(this);
     deleteImageCheckBox->setText("Mark as delete");
     deleteImageCheckBox->setChecked(false);
@@ -432,13 +386,6 @@ void MainWindow::createFileMenu()
 void MainWindow::createEditMenu()
 {
     QMenu *editMenu = menuBar()->addMenu("&Edit");
-    // editMenu->addAction(cutAction);
-    // editMenu->addAction(copyAction);
-    // editMenu->addAction(pasteAction);
-    // editMenu->addSeparator();
-    // editMenu->addAction(undoAction);
-    // editMenu->addAction(redoAction);
-    // editMenu->addSeparator();
     editMenu->addAction(rotateLeftAction);
     editMenu->addAction(rotateRightAction);
     editMenu->addAction(zoomInAction);
@@ -463,12 +410,6 @@ void MainWindow::createToolbar()
     toolbar->addAction(nextImageAction);
 
     toolbar->addSeparator();
-    // toolbar->addAction(cutAction);
-    // toolbar->addAction(copyAction);
-    // toolbar->addAction(pasteAction);
-    // toolbar->addAction(undoAction);
-    // toolbar->addAction(redoAction);
-    // toolbar->addAction(deleteImageAction);
     toolbar->addWidget(deleteImageCheckBox);
     toolbar->addAction(rotateLeftAction);
     toolbar->addAction(rotateRightAction);
