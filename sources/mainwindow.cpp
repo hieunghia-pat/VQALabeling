@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     resize(1024, 800);
-    setWindowTitle(QString("MDSS Annotation Tool"));
+    setWindowTitle(QString("NLVR Annotation Tool"));
 
     qDebug() << "In MainWindow::MainWindow - Creating actions";
     createActions();
@@ -58,8 +58,8 @@ MainWindow::MainWindow(QWidget *parent)
     qDebug() << "In MainWindow::MainWindow - Creating tool bar";
     createToolbar();
 
-    m_default_data = QJsonObject({QPair<QString, QString>(FILENAME, ":/media/images/no-image.jpg"),
-                                  QPair<QString, QString>(FILEPATH, ""),
+    m_default_data = QJsonObject({QPair<QString, QString>(IMAGE_1, ":/media/images/no-image.jpg"),
+                                  QPair<QString, QString>(IMAGE_2, ":/media/images/no-image.jpg"),
                                   QPair<QString, bool>(DELETE, false)});
 
     m_default_annotation = QJsonObject({
@@ -162,7 +162,7 @@ void MainWindow::saveJsonFile()
         save_json_dialog->setSelectedFile(save_json_dialog->selectedFiles().constLast());
     }
 
-    saveAnnotatationsForImage(current_sample_idx);
+    saveAnnotatationsForSample(current_sample_idx);
     saveJson(save_json_dialog->selectedFile());
     emit saveStatusEnabledChanged(false); // have saved changed things
 }
@@ -211,9 +211,11 @@ void MainWindow::saveJson(QString const &filename)
     qDebug() << QString("In MainWindow::saveJson - Saved annotations to %1").arg(filename).toStdString().c_str();
 }
 
-void MainWindow::loadData(qint16 image_idx)
+void MainWindow::loadData(qint16 sample_idx)
 {
-    if (image_idx >= dataSize())
+    setCursor(QCursor(Qt::WaitCursor));
+
+    if (sample_idx >= dataSize())
     {
         QMessageBox::warning(this, "Loadding error occured!", "Can not load image");
         m_container->m_annotation_widget->setEnabled(false);
@@ -221,36 +223,37 @@ void MainWindow::loadData(qint16 image_idx)
     }
 
     fs::path BASE_DIR(m_directory.path().toStdString());
-    QDir path;
+    QDir path_top, path_bottom;
     QJsonObject data;
     bool enableAnnotationWidget = true;
 
-    if (image_idx < 0)
+    if (sample_idx < 0) // no image
     {
         data = m_default_data;
         enableAnnotationWidget = false;
-        path = QDir(data[FILENAME].toString());
-        qDebug() << QString("In MainWindow::loadData - Current image index is %1 => loading %2").arg(image_idx).arg(path.path()).toStdString().c_str();
+        path_top = QDir(data[IMAGE_1].toString());
+        path_bottom = QDir(data[IMAGE_2].toString());
     }
     else
     {
-        data = m_data->at(image_idx).toObject();
-        fs::path filename{data[FILENAME].toString().toStdString()};
-        path = QDir(BASE_DIR / filename);
+        data = m_data->at(sample_idx).toObject();
+        fs::path filename_1{data[IMAGE_1].toString().toStdString()};
+        fs::path filename_2{data[IMAGE_2].toString().toStdString()};
+        path_top = QDir(BASE_DIR / filename_1);
+        path_bottom = QDir(BASE_DIR / filename_2);
     }
 
-    setCursor(QCursor(Qt::WaitCursor));
-
-    m_container->m_image_widget_top->setImage(path);
+    m_container->m_image_widget_top->setImage(path_top);
+    m_container->m_image_widget_bottom->setImage(path_bottom);
     m_container->m_annotation_widget->setData(data[ANNOTATIONS].toArray());
 
     deleteImageCheckBox->setChecked(data[DELETE].toBool());
 
     if (dataSize() > 0)
     {
-        previousImageAction->setEnabled(image_idx > 0);
-        nextImageAction->setEnabled(image_idx < dataSize() - 1);
-        emit imageChanged(m_data->at(image_idx).toObject()[FILENAME].toString());
+        previousImageAction->setEnabled(sample_idx > 0);
+        nextImageAction->setEnabled(sample_idx < dataSize() - 1);
+        emit imageChanged(m_data->at(sample_idx).toObject()[IMAGE_1].toString());
     }
     m_container->m_annotation_widget->setEnabled(enableAnnotationWidget);
 
@@ -259,23 +262,23 @@ void MainWindow::loadData(qint16 image_idx)
 
 void MainWindow::nextImage()
 {
-    saveAnnotatationsForImage(current_image_idx);
+    saveAnnotatationsForSample(current_sample_idx);
 
-    if (current_image_idx < m_data->size() - 1)
+    if (current_sample_idx < m_data->size() - 1)
     {
-        current_image_idx += 1;
-        loadData(current_image_idx);
+        current_sample_idx += 1;
+        loadData(current_sample_idx);
     }
 }
 
 void MainWindow::previousImage()
 {
-    saveAnnotatationsForImage(current_image_idx);
+    saveAnnotatationsForSample(current_sample_idx);
 
-    if (current_image_idx > 0)
+    if (current_sample_idx > 0)
     {
-        current_image_idx -= 1;
-        loadData(current_image_idx);
+        current_sample_idx -= 1;
+        loadData(current_sample_idx);
     }
 }
 
@@ -297,7 +300,7 @@ void MainWindow::resetScaling()
     m_container->m_image_widget_bottom->resetScaling();
 }
 
-void MainWindow::saveAnnotatationsForImage(qsizetype image_idx)
+void MainWindow::saveAnnotatationsForSample(qsizetype image_idx)
 {
     if (image_idx < 0 || image_idx >= dataSize())
     {
@@ -317,9 +320,9 @@ void MainWindow::setSaveStatus(bool enabled)
 
 void MainWindow::updateImageDeletingStatus(int checkState)
 {
-    QJsonObject datapoint = m_data->at(current_image_idx).toObject();
+    QJsonObject datapoint = m_data->at(current_sample_idx).toObject();
     datapoint[DELETE] = checkState == Qt::Checked ? true : false;
-    (*m_data)[current_image_idx] = datapoint;
+    (*m_data)[current_sample_idx] = datapoint;
 }
 
 void MainWindow::fitToWindow()
@@ -437,19 +440,21 @@ void MainWindow::createConnections()
     QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::haveAdjusted, this, &MainWindow::setActiveSaveStatus);
     QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::haveAdjusted, this, &MainWindow::checkAnnotationBox);
 
-    QObject::connect(rotateLeftAction, &QAction::triggered, m_container->m_image_widget, &ImageWidget::rotateLeft);
-    QObject::connect(rotateRightAction, &QAction::triggered, m_container->m_image_widget, &ImageWidget::rotateRight);
+    QObject::connect(rotateLeftAction, &QAction::triggered, m_container->m_image_widget_top, &ImageWidget::rotateLeft);
+    QObject::connect(rotateRightAction, &QAction::triggered, m_container->m_image_widget_top, &ImageWidget::rotateRight);
     QObject::connect(zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
     QObject::connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
     QObject::connect(fitToWindowAction, &QAction::triggered, this, &MainWindow::fitToWindow);
 
     QObject::connect(nextImageAction, &QAction::triggered, this, &MainWindow::nextImage);
-    QObject::connect(m_container->m_image_widget, &ImageWidget::nextImage, this, &MainWindow::nextImage);
-    QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::nextImage, this, &MainWindow::nextImage);
+    QObject::connect(m_container->m_image_widget_top, &ImageWidget::nextImage, this, &MainWindow::nextImage);
+    QObject::connect(m_container->m_image_widget_bottom, &ImageWidget::nextImage, this, &MainWindow::nextImage);
+    QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::nextAnnotation, this, &MainWindow::nextImage);
     QObject::connect(nextImageAction, &QAction::triggered, this, &MainWindow::resetScaling);
     QObject::connect(previousImageAction, &QAction::triggered, this, &MainWindow::previousImage);
-    QObject::connect(m_container->m_image_widget, &ImageWidget::backImage, this, &MainWindow::previousImage);
-    QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::backImage, this, &MainWindow::previousImage);
+    QObject::connect(m_container->m_image_widget_top, &ImageWidget::backImage, this, &MainWindow::previousImage);
+    QObject::connect(m_container->m_image_widget_bottom, &ImageWidget::backImage, this, &MainWindow::previousImage);
+    QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::previousAnnotation, this, &MainWindow::previousImage);
     QObject::connect(previousImageAction, &QAction::triggered, this, &MainWindow::resetScaling);
 
     QObject::connect(deleteImageCheckBox, &QCheckBox::stateChanged, this, &MainWindow::onDeleteImageStatusChanged);
@@ -459,8 +464,8 @@ void MainWindow::createConnections()
 
 void MainWindow::enableImageFeatures(bool enabled)
 {
-    previousImageAction->setEnabled(current_image_idx > 0);
-    nextImageAction->setEnabled(current_image_idx < dataSize() - 1);
+    previousImageAction->setEnabled(current_sample_idx > 0);
+    nextImageAction->setEnabled(current_sample_idx < dataSize() - 1);
     rotateLeftAction->setEnabled(enabled);
     rotateRightAction->setEnabled(enabled);
     zoomInAction->setEnabled(enabled);
@@ -470,7 +475,7 @@ void MainWindow::enableImageFeatures(bool enabled)
 
 void MainWindow::onDeleteImageStatusChanged(qint16 state)
 {
-    qint16 current_state = m_data->at(current_image_idx)[DELETE].toBool();
+    qint16 current_state = m_data->at(current_sample_idx)[DELETE].toBool();
     bool new_state = state == Qt::Checked ? true : false;
     if (new_state != current_state)
     {

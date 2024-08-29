@@ -31,20 +31,29 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
     setTitle(QString("Annotation %1: ").arg(m_index+1));
     setFont(*font);
 
-    // Caption line editor
     m_captionGroup = new QGroupBox(this);
-    m_captionGroup->setTitle("Caption: ");
+    m_captionGroup->setTitle("Caption:");
+
+    m_engCaptionGroup = new QGroupBox(this);
+    m_engCaptionGroup->setTitle("English caption:");
+
+    m_labelGroup = new QGroupBox(this);
+    m_labelGroup->setTitle("Label");
     
     m_captionLineEdit = new QLineEdit(m_captionGroup);
     m_currentAnnotation[CAPTION] = m_captionLineEdit->text();
+    m_engCaptionLineEdit = new QLineEdit(m_engCaptionGroup);
+    m_engCaptionLineEdit->setReadOnly(true);
+    m_currentAnnotation[ENG_CAPTION] = m_engCaptionLineEdit->text();
 
-    m_captionComboBox = new QComboBox(m_captionGroup);
+    m_captionComboBox = new QComboBox(m_labelGroup);
     m_captionComboBox->addItem(label2text[true]);
     m_captionComboBox->addItem(label2text[false]);
     m_captionComboBox->setCurrentText(label2text[true]);
 
     m_captionLayout = new QVBoxLayout(m_captionGroup);
     m_captionLayout->addWidget(m_captionLineEdit);
+    m_captionLayout->addWidget(m_engCaptionLineEdit);
 
     // manipulation button
     m_addButton = new QPushButton();
@@ -78,10 +87,12 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
 
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
+    QString engCaption = m_engCaptionLineEdit->text();
     QString caption = m_captionLineEdit->text();
     QString labelText = m_captionComboBox->currentText();
     bool label = text2label[labelText];
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
+        QPair<QString, QJsonValue>(ENG_CAPTION, engCaption),
         QPair<QString, QJsonValue>(CAPTION, caption),
         QPair<QString, QJsonValue>(LABEL, label)
     });
@@ -90,6 +101,9 @@ std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 void AnnotationBox::setAnnotation(QJsonObject const& annotation)
 {
     m_currentAnnotation = annotation;
+
+    QString engCaption = annotation[ENG_CAPTION].toString();
+    m_engCaptionLineEdit->setText(engCaption);
 
     QString caption = annotation[CAPTION].toString();
     m_captionLineEdit->setText(caption);

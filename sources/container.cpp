@@ -21,6 +21,7 @@ Container::Container(QWidget *parent)
     m_hlayout = new QHBoxLayout(this);
     m_hlayout->addLayout(m_vlayout);
     m_hlayout->addWidget(m_annotation_widget);
+
 }
 
 Container::~Container()

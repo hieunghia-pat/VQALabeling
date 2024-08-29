@@ -42,7 +42,7 @@ private:
     std::shared_ptr<QImage> m_image = nullptr;
     QLabel *m_image_label = nullptr;
 
-    void scaleImage(qfloat16 scaled);
+    void scaleImage(double scaled);
 };
 
 #endif // IMAGE_WIDGET_HPP

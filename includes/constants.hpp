@@ -3,6 +3,7 @@
 #include <QPair>
 
 const QString NONE = "null";
+const QString ENG_CAPTION = "english-caption";
 const QString CAPTION = "caption";
 const QString LABEL = "label";
 const QMap<qint16, QString> label2text({

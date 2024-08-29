@@ -3,12 +3,12 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = MMDSLabeling
+TARGET = NLVRlabeling
 INCLUDEPATH += includes
 QT += widgets
-RC_ICONS = media/icons/udsc-logo.png
-ICON = media/icons/udsc-logo.png
-CONFIG += c++17
+RC_ICONS = media/icons/nlp_uit.png
+ICON = media/icons/nlp_uit.png
+CONFIG += c++14
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.

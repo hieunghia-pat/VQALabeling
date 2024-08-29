@@ -30,12 +30,15 @@ public:
 
     // attributes
     QLineEdit* m_captionLineEdit = nullptr;
+    QLineEdit* m_engCaptionLineEdit = nullptr;
     QComboBox* m_captionComboBox = nullptr;
 
     QPushButton* m_addButton = nullptr;
     QPushButton* m_delButton = nullptr;
 
     QGroupBox* m_captionGroup = nullptr;
+    QGroupBox* m_engCaptionGroup = nullptr;
+    QGroupBox* m_labelGroup = nullptr;
 
     QVBoxLayout* m_captionLayout = nullptr;
     QHBoxLayout* m_buttonLayout = nullptr;

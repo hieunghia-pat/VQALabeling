@@ -48,7 +48,7 @@ public slots:
     // folder interaction slots
     void openFolder();
     void saveJsonFile();
-    void loadData(qint16 image_idx);
+    void loadData(qint16 sample_idx);
     // image slots
     void nextImage();
     void previousImage();
@@ -61,7 +61,7 @@ public slots:
 
     // for saving annotations
     void updateImageDeletingStatus(int checkState);
-    void saveAnnotatationsForImage(qsizetype image_idx);
+    void saveAnnotatationsForSample(qsizetype sample_idx);
     void setSaveStatus(bool);
     void setActiveSaveStatus();
     void checkAnnotationBox();
