@@ -60,12 +60,10 @@ public slots:
     void changeWindowTitle(QString title);
 
     // for saving annotations
-    void updateImageDeletingStatus(int checkState);
     void saveAnnotatationsForSample(qsizetype sample_idx);
     void setSaveStatus(bool);
     void setActiveSaveStatus();
     void checkAnnotationBox();
-    void onDeleteImageStatusChanged(qint16 state);
 
     void onQuitAction();
 

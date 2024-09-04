@@ -18,7 +18,7 @@ CONFIG += c++14
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += includes/annotation_box.hpp \
+HEADERS += \
            includes/annotation_widget.hpp \
            includes/container.hpp \
            includes/exception.hpp \
@@ -30,7 +30,6 @@ HEADERS += includes/annotation_box.hpp \
            includes/selection_box.hpp \
            includes/constants.hpp
 SOURCES += main.cpp \
-           sources/annotation_box.cpp \
            sources/annotation_widget.cpp \
            sources/container.cpp \
            sources/exception.cpp \

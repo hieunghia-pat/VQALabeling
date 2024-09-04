@@ -74,3 +74,5 @@ Thumbs.db
 build
 .vscode
 rc_resources.py
+
+examples

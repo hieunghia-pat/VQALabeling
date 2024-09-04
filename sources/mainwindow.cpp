@@ -59,8 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     createToolbar();
 
     m_default_data = QJsonObject({QPair<QString, QString>(IMAGE_1, ":/media/images/no-image.jpg"),
-                                  QPair<QString, QString>(IMAGE_2, ":/media/images/no-image.jpg"),
-                                  QPair<QString, bool>(DELETE, false)});
+                                  QPair<QString, QString>(IMAGE_2, ":/media/images/no-image.jpg")});
 
     m_default_annotation = QJsonObject({
         QPair<QString, QString>(CAPTION, ""),
@@ -70,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
     for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
         annotations.append(m_default_annotation);
 
-    m_default_data[ANNOTATIONS] = annotations;
+    m_default_data[ANNOTATION] = annotations;
 
     open_folder_dialog = new OpenFolderDialog(this);
     save_json_dialog = new SaveJsonDialog(this);
@@ -119,13 +118,10 @@ qsizetype MainWindow::findFirstEmptyAnnotation()
     for (qsizetype ith = 0; ith < dataSize(); ith++)
     {
         QJsonObject sample = m_data->at(ith).toObject();
-        QJsonArray annotations = sample[ANNOTATIONS].toArray();
-        for (auto annotation : annotations)
-        {
-            QString const& caption = annotation[CAPTION].toString();
-            if (caption == "")
-                return ith + 1 == dataSize() ? ith : ith + 1; // return the first sample which has not been annotated
-        }
+        QJsonObject annotation = m_data->at(ith).toObject()[ANNOTATION].toObject();
+        QString const& caption = annotation[CAPTION].toString();
+        if (caption == "")
+            return ith + 1 == dataSize() ? ith : ith + 1; // return the first sample which has not been annotated
     }
 
     return 0; // else return the first sample
@@ -245,9 +241,7 @@ void MainWindow::loadData(qint16 sample_idx)
 
     m_container->m_image_widget_top->setImage(path_top);
     m_container->m_image_widget_bottom->setImage(path_bottom);
-    m_container->m_annotation_widget->setData(data[ANNOTATIONS].toArray());
-
-    deleteImageCheckBox->setChecked(data[DELETE].toBool());
+    m_container->m_annotation_widget->setData(data[ANNOTATION].toArray());
 
     if (dataSize() > 0)
     {
@@ -309,20 +303,13 @@ void MainWindow::saveAnnotatationsForSample(qsizetype image_idx)
     }
 
     QJsonObject datapoint = m_data->at(image_idx).toObject();
-    datapoint[ANNOTATIONS] = *(m_container->m_annotation_widget->data());
+    datapoint[ANNOTATION] = *(m_container->m_annotation_widget->data());
     (*m_data)[image_idx] = datapoint;
 }
 
 void MainWindow::setSaveStatus(bool enabled)
 {
     saveJsonAction->setEnabled(enabled);
-}
-
-void MainWindow::updateImageDeletingStatus(int checkState)
-{
-    QJsonObject datapoint = m_data->at(current_sample_idx).toObject();
-    datapoint[DELETE] = checkState == Qt::Checked ? true : false;
-    (*m_data)[current_sample_idx] = datapoint;
 }
 
 void MainWindow::fitToWindow()
@@ -457,8 +444,6 @@ void MainWindow::createConnections()
     QObject::connect(m_container->m_annotation_widget, &AnnotationWidget::previousAnnotation, this, &MainWindow::previousImage);
     QObject::connect(previousImageAction, &QAction::triggered, this, &MainWindow::resetScaling);
 
-    QObject::connect(deleteImageCheckBox, &QCheckBox::stateChanged, this, &MainWindow::onDeleteImageStatusChanged);
-
     QObject::connect(quitAction, &QAction::triggered, this, &MainWindow::onQuitAction);
 }
 
@@ -471,17 +456,6 @@ void MainWindow::enableImageFeatures(bool enabled)
     zoomInAction->setEnabled(enabled);
     zoomOutAction->setEnabled(enabled);
     fitToWindowAction->setEnabled(enabled);
-}
-
-void MainWindow::onDeleteImageStatusChanged(qint16 state)
-{
-    qint16 current_state = m_data->at(current_sample_idx)[DELETE].toBool();
-    bool new_state = state == Qt::Checked ? true : false;
-    if (new_state != current_state)
-    {
-        updateImageDeletingStatus(state);
-        setActiveSaveStatus();
-    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
