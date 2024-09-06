@@ -12,13 +12,13 @@
 #include <QDir>
 #include <QKeyEvent>
 #include <QShortcut>
+#include <QList>
 
-#include <memory>
-
+#include "annotation_widget.hpp"
 #include "open_folder_dialog.hpp"
 #include "save_json_dialog.hpp"
 #include "save_notification_dialog.hpp"
-#include "container.hpp"
+#include "image_container.hpp"
 
 class MainWindow : public QMainWindow
 {
@@ -26,8 +26,6 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-
-    Container* container();
 
     qsizetype dataSize();
 
@@ -105,7 +103,10 @@ private:
     SaveNotificationDialog* m_save_notification_dialog = nullptr;
 
     // main container
-    Container* m_container = nullptr;
+    QWidget* centralWidget = nullptr;
+    ImageContainer* m_imageContainer = nullptr;
+    AnnotationWidget* m_annotationWidget = nullptr;
+    QVBoxLayout* m_layout = nullptr;
 
     // initializing methods
     void createActions();
@@ -126,8 +127,7 @@ private:
     qsizetype findFirstEmptyAnnotation();
 
     // internal data
-    std::shared_ptr<QJsonArray> m_data = nullptr;
-    QJsonObject m_default_annotation;
+    QList<QJsonObject> m_data;
     QJsonObject m_default_data;
     QDir m_directory;
 

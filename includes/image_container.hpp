@@ -1,5 +1,5 @@
-#ifndef CONTAINER_HPP
-#define CONTAINER_HPP
+#ifndef IMAGE_CONTAINER_H
+#define IMAGE_CONTAINER_H
 
 #include <QWidget>
 #include <QHBoxLayout>
@@ -10,13 +10,13 @@
 #include "annotation_widget.hpp"
 #include "image_widget.hpp"
 
-class Container : public QWidget
+class ImageContainer : public QWidget
 {
     Q_OBJECT
 public:
     // methods
-    Container(QWidget *parent = nullptr);
-    ~Container();
+    ImageContainer(QWidget *parent = nullptr);
+    ~ImageContainer();
 
     // attributes
     ImageWidget* m_image_widget_top = nullptr;
@@ -24,9 +24,7 @@ public:
     AnnotationWidget* m_annotation_widget = nullptr;
 
     // Layout for the two Image Widget
-    QVBoxLayout* m_vlayout = nullptr;
-    // Layout for the whole container
-    QHBoxLayout* m_hlayout = nullptr;
+    QHBoxLayout* m_imageLayout = nullptr;
 };
 
-#endif // CONTAINER_HPP
+#endif // IMAGE_CONTAINER_H

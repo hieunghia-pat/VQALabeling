@@ -20,8 +20,8 @@ CONFIG += c++14
 # Input
 HEADERS += \
            includes/annotation_widget.hpp \
-           includes/container.hpp \
            includes/exception.hpp \
+           includes/image_container.hpp \
            includes/image_widget.hpp \
            includes/mainwindow.hpp \
            includes/open_folder_dialog.hpp \
@@ -31,8 +31,8 @@ HEADERS += \
            includes/constants.hpp
 SOURCES += main.cpp \
            sources/annotation_widget.cpp \
-           sources/container.cpp \
            sources/exception.cpp \
+           sources/image_container.cpp \
            sources/image_widget.cpp \
            sources/mainwindow.cpp \
            sources/open_folder_dialog.cpp \
