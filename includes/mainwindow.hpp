@@ -61,7 +61,6 @@ public slots:
     void saveAnnotatationsForSample(qsizetype sample_idx);
     void setSaveStatus(bool);
     void setActiveSaveStatus();
-    void checkAnnotationBox();
 
     void onQuitAction();
 
@@ -78,8 +77,6 @@ private:
     // QAction* pasteAction;
     // QAction* undoAction;
     // QAction* redoAction;
-    // QAction* deleteImageAction = nullptr;
-    QCheckBox* deleteImageCheckBox = nullptr;
     QAction* rotateLeftAction = nullptr;
     QAction* rotateRightAction = nullptr;
     QAction* zoomInAction = nullptr;

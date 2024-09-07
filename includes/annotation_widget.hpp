@@ -36,8 +36,10 @@ private:
     QJsonObject m_annotation;
     QLineEdit* m_caption = nullptr;
     QLineEdit* m_englishCaption = nullptr;
-    QComboBox* m_comboBox = nullptr;
+    // QComboBox* m_comboBox = nullptr;
     QVBoxLayout* m_layout = nullptr;
+
+    void checkCaptionChanged(QString text);
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;

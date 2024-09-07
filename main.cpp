@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     // qInstallMessageHandler(messageHandler);
 
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon(":/media/icons/logo-uit.ico"));
+    app.setWindowIcon(QIcon(":/media/icons/nlp_uit.ico"));
 
     MainWindow window;
     window.show();

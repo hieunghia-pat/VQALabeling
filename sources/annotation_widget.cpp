@@ -19,27 +19,32 @@ AnnotationWidget::AnnotationWidget(QWidget* parent)
     m_caption = new QLineEdit(this);
     m_englishCaption = new QLineEdit(this);
     m_englishCaption->setReadOnly(true);
-    m_comboBox = new QComboBox(this);
-    m_comboBox->setCurrentIndex(false); // false is 0 and true is 1
 
     m_layout = new QVBoxLayout(this);
     m_layout->addWidget(m_englishCaption);
     m_layout->addWidget(m_caption);
-    m_layout->addWidget(m_comboBox);
 
     m_layout->setAlignment(Qt::AlignCenter);
+
+    QObject::connect(m_caption, &QLineEdit::textChanged, this, &AnnotationWidget::checkCaptionChanged);
+}
+
+void AnnotationWidget::checkCaptionChanged(QString text) {
+    QString currentCaption = m_annotation[CAPTION].toString();
+    if (currentCaption != text) {
+        emit haveAdjusted();
+    }
 }
 
 std::shared_ptr<QJsonObject> AnnotationWidget::annotation() const
 {
     QString caption = m_caption->text();
     QString englishCaption = m_englishCaption->text();
-    bool label = m_comboBox->currentIndex();
+    // bool label = m_comboBox->currentIndex();
 
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
         QPair<QString, QJsonValue>(CAPTION, caption),
-        QPair<QString, QJsonValue>(ENG_CAPTION, englishCaption),
-        QPair<QString, QJsonValue>(LABEL, label)
+        QPair<QString, QJsonValue>(ENG_CAPTION, englishCaption)
     });
 }
 
@@ -48,12 +53,9 @@ void AnnotationWidget::setAnnotation(QJsonObject const& annotation)
     m_annotation = annotation;
     QString caption = annotation[CAPTION].toString();
     QString englishCaption = annotation[ENG_CAPTION].toString();
-    QString labelText = annotation[LABEL].toString();
-    bool label = text2label[labelText];
 
     m_caption->setText(caption);
     m_englishCaption->setText(englishCaption);
-    m_comboBox->setCurrentIndex(label);
 }
 
 bool AnnotationWidget::isEmpty()

@@ -115,7 +115,7 @@ qsizetype MainWindow::findFirstEmptyAnnotation()
         QJsonObject annotation = m_data[ith][ANNOTATION].toObject();
         QString const& caption = annotation[CAPTION].toString();
         if (caption == "")
-            return ith + 1 == dataSize() ? ith : ith + 1; // return the first sample which has not been annotated
+            return ith; // return the first sample which has not been annotated
     }
 
     return 0; // else return the first sample
@@ -182,8 +182,6 @@ void MainWindow::loadJson(QString const &folder)
         m_data.append(annotation.toObject());
     }
     file.close();
-
-    deleteImageCheckBox->setEnabled(true);
 }
 
 void MainWindow::saveJson(QString const &filename)
@@ -257,7 +255,7 @@ void MainWindow::loadData(qint16 sample_idx)
 
 void MainWindow::nextImage()
 {
-    saveAnnotatationsForSample(current_sample_idx);
+    saveJsonFile();
 
     if (current_sample_idx < m_data.size() - 1)
     {
@@ -268,7 +266,7 @@ void MainWindow::nextImage()
 
 void MainWindow::previousImage()
 {
-    saveAnnotatationsForSample(current_sample_idx);
+    saveJsonFile();
 
     if (current_sample_idx > 0)
     {
@@ -306,6 +304,7 @@ void MainWindow::saveAnnotatationsForSample(qsizetype image_idx)
     QJsonObject datapoint = m_data[image_idx];
     datapoint[ANNOTATION] = *(m_annotationWidget->annotation());
     m_data[image_idx] = datapoint;
+    setSaveStatus(false);
 }
 
 void MainWindow::setSaveStatus(bool enabled)
@@ -347,10 +346,6 @@ void MainWindow::createActions()
     nextImageAction = new QAction(QIcon(":/media/icons/next-image.png"), "Next Image", this);
     previousImageAction = new QAction(QIcon(":/media/icons/previous-image.png"), "Previous Image", this);
 
-    deleteImageCheckBox = new QCheckBox(this);
-    deleteImageCheckBox->setText("Mark as delete");
-    deleteImageCheckBox->setChecked(false);
-    deleteImageCheckBox->setEnabled(false);
     rotateLeftAction = new QAction(QIcon(":/media/icons/rotate-left.png"), "Rotate left", this);
     rotateRightAction = new QAction(QIcon(":/media/icons/rotate-right.png"), "Rotate right", this);
     zoomInAction = new QAction(QIcon(":/media/icons/zoom-in.png"), "Zoom In", this);
@@ -401,7 +396,6 @@ void MainWindow::createToolbar()
     toolbar->addAction(nextImageAction);
 
     toolbar->addSeparator();
-    toolbar->addWidget(deleteImageCheckBox);
     toolbar->addAction(rotateLeftAction);
     toolbar->addAction(rotateRightAction);
     toolbar->addAction(zoomInAction);
@@ -426,10 +420,11 @@ void MainWindow::createConnections()
     QObject::connect(this, &MainWindow::createdNovelFile, save_json_dialog, &SaveJsonDialog::toggleFileSelected);
     QObject::connect(this, &MainWindow::saveStatusEnabledChanged, this, &MainWindow::setSaveStatus);
     QObject::connect(m_annotationWidget, &AnnotationWidget::haveAdjusted, this, &MainWindow::setActiveSaveStatus);
-    QObject::connect(m_annotationWidget, &AnnotationWidget::haveAdjusted, this, &MainWindow::checkAnnotationBox);
 
     QObject::connect(rotateLeftAction, &QAction::triggered, m_imageContainer->m_image_widget_top, &ImageWidget::rotateLeft);
     QObject::connect(rotateRightAction, &QAction::triggered, m_imageContainer->m_image_widget_top, &ImageWidget::rotateRight);
+    QObject::connect(rotateLeftAction, &QAction::triggered, m_imageContainer->m_image_widget_bottom, &ImageWidget::rotateLeft);
+    QObject::connect(rotateRightAction, &QAction::triggered, m_imageContainer->m_image_widget_bottom, &ImageWidget::rotateRight);
     QObject::connect(zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
     QObject::connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
     QObject::connect(fitToWindowAction, &QAction::triggered, this, &MainWindow::fitToWindow);
@@ -437,7 +432,7 @@ void MainWindow::createConnections()
     QObject::connect(nextImageAction, &QAction::triggered, this, &MainWindow::nextImage);
     QObject::connect(m_imageContainer->m_image_widget_top, &ImageWidget::nextImage, this, &MainWindow::nextImage);
     QObject::connect(m_imageContainer->m_image_widget_bottom, &ImageWidget::nextImage, this, &MainWindow::nextImage);
-    QObject::connect(m_imageContainer->m_annotation_widget, &AnnotationWidget::nextAnnotation, this, &MainWindow::nextImage);
+    QObject::connect(m_annotationWidget, &AnnotationWidget::nextAnnotation, this, &MainWindow::nextImage);
     QObject::connect(nextImageAction, &QAction::triggered, this, &MainWindow::resetScaling);
     QObject::connect(previousImageAction, &QAction::triggered, this, &MainWindow::previousImage);
     QObject::connect(m_imageContainer->m_image_widget_top, &ImageWidget::backImage, this, &MainWindow::previousImage);
@@ -485,10 +480,3 @@ void MainWindow::changeWindowTitle(QString title)
     setWindowTitle(title);
 }
 
-void MainWindow::checkAnnotationBox()
-{
-    if (m_annotationWidget->isEmpty())
-        deleteImageCheckBox->setCheckState(Qt::Checked);
-    else
-        deleteImageCheckBox->setCheckState(Qt::Unchecked);
-}
