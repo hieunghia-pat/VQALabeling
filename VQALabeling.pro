@@ -3,12 +3,12 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = MMDSLabeling
+TARGET = NLVRlabeling
 INCLUDEPATH += includes
 QT += widgets
-RC_ICONS = media/icons/udsc-logo.png
-ICON = media/icons/udsc-logo.png
-CONFIG += c++17
+RC_ICONS = media/icons/nlp_uit.png
+ICON = media/icons/nlp_uit.png
+CONFIG += c++14
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -18,10 +18,10 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += includes/annotation_box.hpp \
+HEADERS += \
            includes/annotation_widget.hpp \
-           includes/container.hpp \
            includes/exception.hpp \
+           includes/image_container.hpp \
            includes/image_widget.hpp \
            includes/mainwindow.hpp \
            includes/open_folder_dialog.hpp \
@@ -30,10 +30,9 @@ HEADERS += includes/annotation_box.hpp \
            includes/selection_box.hpp \
            includes/constants.hpp
 SOURCES += main.cpp \
-           sources/annotation_box.cpp \
            sources/annotation_widget.cpp \
-           sources/container.cpp \
            sources/exception.cpp \
+           sources/image_container.cpp \
            sources/image_widget.cpp \
            sources/mainwindow.cpp \
            sources/open_folder_dialog.cpp \

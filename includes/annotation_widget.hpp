@@ -1,28 +1,27 @@
 #ifndef ANNOTATION_WIDGET_HPP
 #define ANNOTATION_WIDGET_HPP
 
-#include "annotation_box.hpp"
-
+#include <QWidget>
 #include <QList>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QJsonObject>
+#include <QComboBox>
 #include <QVBoxLayout>
-#include <QScrollArea>
 #include <QPushButton>
 #include <QJsonArray>
 #include <QKeyEvent>
 
 #include <memory>
 
-static qsizetype total_initial_annotations = 1;
-
-class AnnotationWidget: public QScrollArea
+class AnnotationWidget: public QWidget
 {
     Q_OBJECT
 public:
     AnnotationWidget(QWidget* parent = nullptr);
 
-    std::shared_ptr<QJsonArray> data() const;
-    void setData(QJsonArray const& data);
-    QVBoxLayout* layout();
+    std::shared_ptr<QJsonObject> annotation() const;
+    void setAnnotation(QJsonObject const& annotation);
 
     bool isEmpty();
 
@@ -30,22 +29,17 @@ public:
 
 signals:
     void haveAdjusted();
-    void changedNumberOfAnnotations();
     void nextAnnotation();
     void previousAnnotation();
 
-public slots:
-    void addAnnotation(qsizetype ith);
-    void deleteAnnotation(qsizetype ith);
-    void reassignIndex();
-
 private:
+    QJsonObject m_annotation;
+    QLineEdit* m_caption = nullptr;
+    QLineEdit* m_englishCaption = nullptr;
+    // QComboBox* m_comboBox = nullptr;
     QVBoxLayout* m_layout = nullptr;
 
-    qint16 const m_defaultNumOfAnns = total_initial_annotations;
-    QList<AnnotationBox*> m_annotation_boxes {};
-
-    QGroupBox* m_container = nullptr;
+    void checkCaptionChanged(QString text);
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;

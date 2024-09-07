@@ -3,6 +3,8 @@
 #include <QPair>
 
 const QString NONE = "null";
+const QString ID = "id";
+const QString ENG_CAPTION = "english-caption";
 const QString CAPTION = "caption";
 const QString LABEL = "label";
 const QMap<qint16, QString> label2text({
@@ -17,6 +19,4 @@ const QMap<QString, qint16> text2label({
 const QString FILEPATH = "filepath";
 const QString IMAGE_1 = "image_1";
 const QString IMAGE_2 = "image_2";
-const QString ANNOTATIONS = "annotations";
-const QString DELETE = "delete";
-
+const QString ANNOTATION = "annotation";

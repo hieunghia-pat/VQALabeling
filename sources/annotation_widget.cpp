@@ -1,10 +1,11 @@
 #include "annotation_widget.hpp"
-#include "annotation_box.hpp"
+#include "constants.hpp"
 
 #include <QList>
+#include <QPair>
 #include <QVBoxLayout>
 #include <QGroupBox>
-#include <QScrollArea>
+#include <QWidget>
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QDialog>
@@ -13,112 +14,58 @@
 #include <memory>
 
 AnnotationWidget::AnnotationWidget(QWidget* parent)
-    : QScrollArea(parent)
+    : QWidget(parent)
 {
-    m_container = new QGroupBox(this);
-    for (qint16 ith = 0; ith < m_defaultNumOfAnns; ith++)
-    {
-        m_annotation_boxes.append(new AnnotationBox(ith, this, this));
-        m_annotation_boxes[ith]->setIndex(ith);
-    }
+    m_caption = new QLineEdit(this);
+    m_englishCaption = new QLineEdit(this);
+    m_englishCaption->setReadOnly(true);
 
-    m_layout = new QVBoxLayout(m_container);
-    m_layout->setAlignment(Qt::AlignTop);
-    for (auto& ann: m_annotation_boxes)
-    {
-        ann->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-        QObject::connect(ann, &AnnotationBox::contentChanged, this, &AnnotationWidget::haveAdjusted);
-        m_layout->addWidget(ann);
-    }
+    m_layout = new QVBoxLayout(this);
+    m_layout->addWidget(m_englishCaption);
+    m_layout->addWidget(m_caption);
 
-    setWidget(m_container);
-    setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-    setWidgetResizable(true);
-    setAlignment(Qt::AlignCenter);
+    m_layout->setAlignment(Qt::AlignCenter);
 
-    QObject::connect(this, &AnnotationWidget::changedNumberOfAnnotations, this, &AnnotationWidget::reassignIndex);
+    QObject::connect(m_caption, &QLineEdit::textChanged, this, &AnnotationWidget::checkCaptionChanged);
 }
 
-std::shared_ptr<QJsonArray> AnnotationWidget::data() const
-{
-    std::shared_ptr<QJsonArray> annotations = std::make_shared<QJsonArray>();
-
-    for (auto& annotation_box: m_annotation_boxes)
-    {
-        // qDebug() << QString("In AnnotationWidget::data - Getting data from annotation box %1")
-        //                         .arg(m_annotation_boxes.indexOf(annotation_box)+1).toStdString().c_str();
-        annotations->append(*(annotation_box->annotation()));
+void AnnotationWidget::checkCaptionChanged(QString text) {
+    QString currentCaption = m_annotation[CAPTION].toString();
+    if (currentCaption != text) {
+        emit haveAdjusted();
     }
-
-    return annotations;
 }
 
-QVBoxLayout *AnnotationWidget::layout()
+std::shared_ptr<QJsonObject> AnnotationWidget::annotation() const
 {
-    return m_layout;
+    QString caption = m_caption->text();
+    QString englishCaption = m_englishCaption->text();
+    // bool label = m_comboBox->currentIndex();
+
+    return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
+        QPair<QString, QJsonValue>(CAPTION, caption),
+        QPair<QString, QJsonValue>(ENG_CAPTION, englishCaption)
+    });
 }
 
-void AnnotationWidget::setData(QJsonArray const& data)
+void AnnotationWidget::setAnnotation(QJsonObject const& annotation)
 {
-    while (m_annotation_boxes.size() > data.size())
-        deleteAnnotation(m_annotation_boxes.size()-1);
+    m_annotation = annotation;
+    QString caption = annotation[CAPTION].toString();
+    QString englishCaption = annotation[ENG_CAPTION].toString();
 
-    while (m_annotation_boxes.size() < data.size())
-        addAnnotation(m_annotation_boxes.size()-1);
-
-    for (qsizetype ith = 0; ith < data.size(); ith++)
-    {
-        // qDebug() << QString("In AnnotationWidget::setData - Setting data for annotation box %1").arg(ith+1).toStdString().c_str();
-        m_annotation_boxes[ith]->setAnnotation(data[ith].toObject());
-    }
+    m_caption->setText(caption);
+    m_englishCaption->setText(englishCaption);
 }
 
 bool AnnotationWidget::isEmpty()
 {
-    for (auto& annotation_box: m_annotation_boxes)
-        if (!annotation_box->isEmpty())
-            return false;
-    return true;
+    return m_caption->text().isEmpty();
 }
 
 AnnotationWidget::~AnnotationWidget()
 {
 
-}
-
-void AnnotationWidget::addAnnotation(qsizetype ith)
-{
-    ith += 1;
-    AnnotationBox* new_box = new AnnotationBox(ith, this, this);
-    new_box->setIndex(ith);
-    new_box->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    QObject::connect(new_box, &AnnotationBox::contentChanged, this, &AnnotationWidget::haveAdjusted);
-    m_annotation_boxes.insert(ith, new_box);
-    m_layout->insertWidget(ith, new_box);
-    
-    emit changedNumberOfAnnotations();
-}
-
-void AnnotationWidget::deleteAnnotation(qsizetype ith)
-{
-    if (m_annotation_boxes.size() == total_initial_annotations)
-        return;
-
-    AnnotationBox* box = m_annotation_boxes[ith];
-    m_layout->removeWidget(box);
-    box->setParent(nullptr);
-    m_layout->update();
-
-    m_annotation_boxes.removeAt(ith);
-    delete box;
-
-    emit changedNumberOfAnnotations();
-}
-
-void AnnotationWidget::reassignIndex()
-{
-    for (qsizetype ith = 0; ith < m_annotation_boxes.size(); ith++)
-        m_annotation_boxes[ith]->setIndex(ith);
 }
 
 void AnnotationWidget::keyPressEvent(QKeyEvent* event)
@@ -129,5 +76,5 @@ void AnnotationWidget::keyPressEvent(QKeyEvent* event)
     if (event->key() == Qt::Key_Right)
         emit nextAnnotation();
 
-    QScrollArea::keyPressEvent(event); // pass the event to the base class
+    QWidget::keyPressEvent(event); // pass the event to the base class
 }

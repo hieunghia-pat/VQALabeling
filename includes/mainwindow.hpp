@@ -12,13 +12,13 @@
 #include <QDir>
 #include <QKeyEvent>
 #include <QShortcut>
+#include <QList>
 
-#include <memory>
-
+#include "annotation_widget.hpp"
 #include "open_folder_dialog.hpp"
 #include "save_json_dialog.hpp"
 #include "save_notification_dialog.hpp"
-#include "container.hpp"
+#include "image_container.hpp"
 
 class MainWindow : public QMainWindow
 {
@@ -26,8 +26,6 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-
-    Container* container();
 
     qsizetype dataSize();
 
@@ -48,7 +46,7 @@ public slots:
     // folder interaction slots
     void openFolder();
     void saveJsonFile();
-    void loadData(qint16 image_idx);
+    void loadData(qint16 sample_idx);
     // image slots
     void nextImage();
     void previousImage();
@@ -60,12 +58,9 @@ public slots:
     void changeWindowTitle(QString title);
 
     // for saving annotations
-    void updateImageDeletingStatus(int checkState);
-    void saveAnnotatationsForImage(qsizetype image_idx);
+    void saveAnnotatationsForSample(qsizetype sample_idx);
     void setSaveStatus(bool);
     void setActiveSaveStatus();
-    void checkAnnotationBox();
-    void onDeleteImageStatusChanged(qint16 state);
 
     void onQuitAction();
 
@@ -82,8 +77,6 @@ private:
     // QAction* pasteAction;
     // QAction* undoAction;
     // QAction* redoAction;
-    // QAction* deleteImageAction = nullptr;
-    QCheckBox* deleteImageCheckBox = nullptr;
     QAction* rotateLeftAction = nullptr;
     QAction* rotateRightAction = nullptr;
     QAction* zoomInAction = nullptr;
@@ -107,7 +100,10 @@ private:
     SaveNotificationDialog* m_save_notification_dialog = nullptr;
 
     // main container
-    Container* m_container = nullptr;
+    QWidget* centralWidget = nullptr;
+    ImageContainer* m_imageContainer = nullptr;
+    AnnotationWidget* m_annotationWidget = nullptr;
+    QVBoxLayout* m_layout = nullptr;
 
     // initializing methods
     void createActions();
@@ -128,8 +124,7 @@ private:
     qsizetype findFirstEmptyAnnotation();
 
     // internal data
-    std::shared_ptr<QJsonArray> m_data = nullptr;
-    QJsonObject m_default_annotation;
+    QList<QJsonObject> m_data;
     QJsonObject m_default_data;
     QDir m_directory;
 
