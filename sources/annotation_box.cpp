@@ -1,6 +1,5 @@
 #include "annotation_box.hpp"
 #include "annotation_widget.hpp"
-#include "selection_box.hpp"
 #include "constants.hpp"
 
 #include <QLabel>
@@ -34,19 +33,20 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
 
     // Question-answer line editor
     m_questionGroup = new QGroupBox();
-    m_questionGroup->setTitle("Question: ");
+    m_questionGroup->setTitle("Question in English: ");
     
     m_questionLineEdit = new QLineEdit();
-    m_current_annotation[QUESTION] = m_questionLineEdit->text();
+    m_questionLineEdit->setReadOnly(true);
+    m_current_annotation[ENG_QUESTION] = m_questionLineEdit->text();
 
     m_questionLayout = new QVBoxLayout(m_questionGroup);
     m_questionLayout->addWidget(m_questionLineEdit);
 
     m_answerGroup = new QGroupBox();
-    m_answerGroup->setTitle("Answer: ");
+    m_answerGroup->setTitle("Question in Vietnamese: ");
     
     m_answerLineEdit = new QLineEdit();
-    m_current_annotation[ANSWER] = m_answerLineEdit->text();
+    m_current_annotation[VI_QUESTION] = m_answerLineEdit->text();
     
     m_answerLayout = new QVBoxLayout(m_answerGroup);
     m_answerLayout->addWidget(m_answerLineEdit);
@@ -86,8 +86,8 @@ AnnotationBox::AnnotationBox(qsizetype ith, QWidget* container, QWidget *parent)
 std::shared_ptr<QJsonObject> AnnotationBox::annotation()
 {
     return std::make_shared<QJsonObject>(std::initializer_list<QPair<QString, QJsonValue>>{
-        QPair<QString, QJsonValue>(QUESTION, m_questionLineEdit->text()),
-        QPair<QString, QJsonValue>(ANSWER, m_answerLineEdit->text())
+        QPair<QString, QJsonValue>(ENG_QUESTION, m_questionLineEdit->text()),
+        QPair<QString, QJsonValue>(VI_QUESTION, m_answerLineEdit->text())
     });
 }
 
@@ -95,10 +95,10 @@ void AnnotationBox::setAnnotation(QJsonObject const& annotation)
 {
     m_current_annotation = annotation;
 
-    QString question = annotation[QUESTION].toString();
+    QString question = annotation[ENG_QUESTION].toString();
     m_questionLineEdit->setText(question);
 
-    QString answer = annotation[ANSWER].toString();
+    QString answer = annotation[VI_QUESTION].toString();
     m_answerLineEdit->setText(answer);
 }
 
@@ -115,22 +115,22 @@ void AnnotationBox::setIndex(qint16 index)
 
 void AnnotationBox::handleQuestionChanged(QString const& question)
 {
-    QString current_question = m_current_annotation[QUESTION].toString();
+    QString current_question = m_current_annotation[ENG_QUESTION].toString();
 
     if (question != current_question)
     {
-        m_current_annotation[QUESTION] = question;
+        m_current_annotation[ENG_QUESTION] = question;
         emit contentChanged();
     }
 }
 
 void AnnotationBox::handleAnswerChanged(QString const& answer)
 {
-    QString current_answer = m_current_annotation[ANSWER].toString();
+    QString current_answer = m_current_annotation[VI_QUESTION].toString();
 
     if (answer != current_answer)
     {
-        m_current_annotation[ANSWER] = answer;
+        m_current_annotation[VI_QUESTION] = answer;
         emit contentChanged();
     }
 }

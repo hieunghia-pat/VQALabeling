@@ -64,8 +64,8 @@ MainWindow::MainWindow(QWidget *parent)
                                   QPair<QString, bool>(DELETE, false)});
 
     m_default_annotation = QJsonObject({
-        QPair<QString, QString>(QUESTION, ""),
-        QPair<QString, QString>(ANSWER, "")
+        QPair<QString, QString>(ENG_QUESTION, ""),
+        QPair<QString, QString>(VI_QUESTION, "")
     });
     QJsonArray annotations;
     for (qsizetype ith = 0; ith < total_initial_annotations; ith++)
@@ -124,7 +124,7 @@ qsizetype MainWindow::findFirstEmptyAnnotation()
         // if (!m_data->at(ith)[DELETE].toBool())
         //     return ith+1 == dataSize() ? ith : ith+1; // return the first image which has not been annotated
         for (auto annotation : annotations)
-            if ((annotation[QUESTION].toString() != "") || (annotation[ANSWER].toString() != ""))
+            if ((annotation[ENG_QUESTION].toString() != "") || (annotation[VI_QUESTION].toString() != ""))
                 return ith + 1 == dataSize() ? ith : ith + 1; // return the first image which has not been annotated
     }
 

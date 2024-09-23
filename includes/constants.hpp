@@ -2,8 +2,8 @@
 #include <QMap>
 #include <QPair>
 
-const QString QUESTION = "question";
-const QString ANSWER = "answer";
+const QString ENG_QUESTION = "eng-question";
+const QString VI_QUESTION = "vi-question";
 
 const QString FILEPATH = "filepath";
 const QString FILENAME = "filename";
