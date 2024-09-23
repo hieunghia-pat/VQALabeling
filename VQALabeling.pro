@@ -6,8 +6,8 @@ TEMPLATE = app
 TARGET = NLVRlabeling
 INCLUDEPATH += includes
 QT += widgets
-RC_ICONS = media/icons/nlp_uit.png
-ICON = media/icons/nlp_uit.png
+RC_ICONS = media/icons/nlp_uit.ico
+ICON = media/icons/nlp_uit.ico
 CONFIG += c++14
 
 # You can make your code fail to compile if you use deprecated APIs.

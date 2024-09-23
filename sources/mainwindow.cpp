@@ -246,7 +246,7 @@ void MainWindow::loadData(qint16 sample_idx)
     {
         previousImageAction->setEnabled(sample_idx > 0);
         nextImageAction->setEnabled(sample_idx < dataSize() - 1);
-        emit imageChanged(m_data[sample_idx][IMAGE_1].toString());
+        emit imageChanged(QString("Annotation %1").arg(sample_idx+1));
     }
     m_annotationWidget->setEnabled(enableAnnotationWidget);
 
