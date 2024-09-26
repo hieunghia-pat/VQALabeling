@@ -6,8 +6,8 @@ TEMPLATE = app
 TARGET = VQALabeling
 INCLUDEPATH += includes
 QT += widgets
-RC_ICONS = media/icons/logo-uit.ico
-ICON = media/icons/logo-uit.ico
+RC_ICONS = media/icons/nlp_uit.ico
+ICON = media/icons/nlp_uit.ico
 CONFIG += c++17
 
 # You can make your code fail to compile if you use deprecated APIs.
